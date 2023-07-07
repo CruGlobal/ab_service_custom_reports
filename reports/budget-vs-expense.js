@@ -90,7 +90,7 @@ module.exports = {
 
       const GLTransactData = await GLTransactObj.findAll({
          where: w,
-         populate: true,
+         populate: false,
       });
 
       const cond = {
@@ -342,7 +342,7 @@ module.exports = {
             projectObj
                .findAll({
                   where: where,
-                  populate: true,
+                  populate: false,
                })
                .then((list) => {
                   const uniqList = [];
