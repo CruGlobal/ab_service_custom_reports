@@ -66,7 +66,7 @@ function sort(a, b) {
 }
 
 async function getProjectBudgets(modelProjectBudget, team, rcs, year) {
-   if (!team && rcs?.length < 1) return [];
+   if (rcs?.length < 1) return [];
 
    const condProject = {
       glue: "and",
@@ -126,7 +126,7 @@ async function getProjectBudgets(modelProjectBudget, team, rcs, year) {
 }
 
 async function getActualExpense(modelTeamJEArchive, team, rcs, year) {
-   if (!team && rcs?.length < 1) return [];
+   if (rcs?.length < 1) return [];
 
    const cond = {
       glue: "and",
