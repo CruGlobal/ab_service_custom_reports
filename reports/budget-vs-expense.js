@@ -263,13 +263,9 @@ module.exports = {
          ),
       ]);
 
-      const selectedRcs = [rc]
-         .concat(
-            rcs
-               .filter((r) => mcc && r[`${mccField.alias}.${mccField.columnName}`] == mcc)
-               .map((r) => r["BASE_OBJECT.RC Name"])
-         )
-         .filter((r) => r);
+      let selectedRcs = rcs
+         .filter((r) => (!rc && !mcc) || r["BASE_OBJECT.RC Name"] == rc || r[`${mccField.alias}.${mccField.columnName}`] == mcc)
+         .map((r) => r["BASE_OBJECT.RC Name"]);
 
       const [budgets, expenses] = await Promise.all([
          getProjectBudgets(projectBudgetObj, team, selectedRcs, fyYear),
@@ -279,8 +275,8 @@ module.exports = {
       data.teamOptions = (teamsArray ?? [])
          .map((t) => t["BASE_OBJECT.Name"])
          // Remove duplicated Team
-         .filter(function (team, ft, tl) {
-            return tl.indexOf(team) == ft;
+         .filter(function (t, ft, tl) {
+            return tl.indexOf(t) == ft;
          })
          .sort(sort);
 
