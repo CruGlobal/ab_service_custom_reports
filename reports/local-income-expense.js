@@ -209,11 +209,13 @@ module.exports = {
             AB.req
          )).map((t) => t["BASE_OBJECT.RC Name"]);
 
-         where.rules.push({
-            key: "RC Code",
-            rule: "in",
-            value: rcs,
-         });
+         if (rcs?.length) {
+            where.rules.push({
+               key: "RC Code",
+               rule: "in",
+               value: rcs,
+            });
+         }
       }
 
       const fyValues = [start, end].sort();
