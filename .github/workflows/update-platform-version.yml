@@ -22,15 +22,23 @@ jobs:
     with:
       ref: ${{ needs.call-update-sub.outputs.branch }}
 
+  call-generate-build-meta:
+    name: Meta
+    uses: digi-serve/.github/.github/workflows/generate-build-meta.yml@master
+    with: 
+      version: ${{ github.event.client_payload.version }}
+      identifier: p
+
   call-bump-version:
     name: Version
     if: ${{ github.event.client_payload.type == 'minor' || github.event.client_payload.type == 'patch' }}
-    needs: [ call-update-sub, call-run-cy-test ]
+    needs: [ call-update-sub, call-run-cy-test, call-generate-build-meta ]
     uses: digi-serve/.github/.github/workflows/bump-version.yml@master
     with:
       ref: ${{ needs.call-update-sub.outputs.branch }}
       # Consider platform version updates as patch
       type: patch
+      build_meta: ${{ needs.call-generate-build-meta.outputs.build }}
 
   call-merge-release:
     name: Merge
