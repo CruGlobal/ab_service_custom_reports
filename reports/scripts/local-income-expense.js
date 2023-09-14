@@ -162,7 +162,9 @@ function _attachEvents() {
 }
 
 async function loadOptions() {
-   const isCoreUser = true;
+   const isCoreUser =
+      AB.Account.roles((r) => (r.uuid || r) == ids.coreFinanceRoleId).length >
+      0;
    const teamsModel = isCoreUser
       ? AB.objectByID(ids.allTeamObjId).model()
       : AB.queryByID(ids.myTeamsQueryId).model();
