@@ -6,6 +6,7 @@ const ids = {
    myTeamsQueryId: "62a0c464-1e67-4cfb-9592-a7c5ed9db45c",
    myRCsQueryId: "241a977c-7748-420d-9dcb-eff53e66a43f",
    myRCsTeamFieldId: "ae4ace97-f70c-4132-8fa0-1a0b1a9c7859",
+   allTeamObjId: "138ff828-4579-412b-8b5b-98542d7aa152",
    balanceObjId: "bb9aaf02-3265-4b8c-9d9a-c0b447c2d804",
    monthObjId: "1d63c6ac-011a-4ffd-ae15-97e5e43f2b3f",
    mccFieldId: "eb0f60c3-55cf-40b1-8408-64501f41fa71",
@@ -161,7 +162,10 @@ function _attachEvents() {
 }
 
 async function loadOptions() {
-   const myTeams = AB.queryByID(ids.myTeamsQueryId).model();
+   const isCoreUser = true;
+   const teamsModel = isCoreUser
+      ? AB.objectByID(ids.allTeamObjId).model()
+      : AB.queryByID(ids.myTeamsQueryId).model();
    const monthObj = AB.objectByID(ids.monthObjId).model();
 
    _busy();
@@ -169,7 +173,7 @@ async function loadOptions() {
    // Load Options
    const [teams, months] = await Promise.all([
       // return teams
-      myTeams.findAll({
+      teamsModel.findAll({
          populate: false,
       }),
       // return year
@@ -183,7 +187,7 @@ async function loadOptions() {
    _defineOptions(
       ids.teamViewId,
       (teams && teams.data) || [],
-      "BASE_OBJECT.Name"
+      isCoreUser ? "Name" : "BASE_OBJECT.Name"
    );
    _defineRcOptions();
 
@@ -285,7 +289,13 @@ function refresh() {
 
    const startVal = $start.getValue(),
       endVal = $end.getValue(),
-      teamVal = $team.getValue(),
+      teamVal = $team.getValue()
+         ? $team.getValue()
+         : $team
+              .getList()
+              .data.find({})
+              .map((t) => t["Name"] || t["BASE_OBJECT.Name"])
+              .join(","),
       rcVal = $rc.getValue();
 
    const iFrame = parent.document.getElementById(
