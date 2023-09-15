@@ -14,7 +14,10 @@ module.exports = {
          myTeamsQueryId: "62a0c464-1e67-4cfb-9592-a7c5ed9db45c",
          myRCsQueryId: "241a977c-7748-420d-9dcb-eff53e66a43f",
          myRCsTeamFieldId: "ae4ace97-f70c-4132-8fa0-1a0b1a9c7859",
+         allRcObjId: "c3aae079-d36d-489f-ae1e-a6289536cb1a",
+         allRcTeamFieldId: "ae4ace97-f70c-4132-8fa0-1a0b1a9c7859",
          balanceObjId: "bb9aaf02-3265-4b8c-9d9a-c0b447c2d804",
+         coreFinanceRoleId: "e32dbd38-2300-4aac-84a9-d2c704bd2a29",
       };
 
       // Our data object
@@ -158,31 +161,9 @@ module.exports = {
          }
       }
 
-      function getMonthList() {
-         var array = [
-            "01",
-            "02",
-            "03",
-            "04",
-            "05",
-            "06",
-            "07",
-            "08",
-            "09",
-            "10",
-            "11",
-            "12",
-         ];
+      const isCoreUser = (req._user?.SITE_ROLE ?? []).filter((r) => (r.uuid ?? r) == ids.coreFinanceRoleId).length > 0;
 
-         // array.sort();
-         return array;
-      }
-
-      function sort(a, b) {
-         return (a ?? "").toLowerCase().localeCompare((b ?? "").toLowerCase());
-      }
-
-      const myTeams = AB.queryByID(ids.myTeamsQueryId).model();
+      const allRCs = AB.objectByID(ids.allRcObjId).model();
       const myRCs = AB.queryByID(ids.myRCsQueryId).model();
       const balanceObj = AB.objectByID(ids.balanceObjId).model();
 
@@ -219,26 +200,29 @@ module.exports = {
 
          (Teams ?? "").split(",").forEach((team) => {
             teamCond.rules.push({
-               key: ids.myRCsTeamFieldId,
+               key: isCoreUser ? ids.allRcTeamFieldId : ids.myRCsTeamFieldId,
                rule: "equals",
                value: team,
             });
          });
 
-         const rcs = (await myRCs.findAll(
+         const rcsModel = isCoreUser ? allRCs : myRCs;
+         const rcs = (await rcsModel.findAll(
             {
                where: teamCond,
                populate: false,
             },
             { username: req._user.username },
             AB.req
-         )).map((t) => t["BASE_OBJECT.RC Name"]);
+         )).map((t) => isCoreUser ? t["RC Name"] : t["BASE_OBJECT.RC Name"]);
 
-         where.rules.push({
-            key: "RC Code",
-            rule: "in",
-            value: rcs,
-         });
+         if (rcs?.length) {
+            where.rules.push({
+               key: "RC Code",
+               rule: "in",
+               value: rcs,
+            });
+         }
       }
 
       const fyValues = [start, end].sort();
