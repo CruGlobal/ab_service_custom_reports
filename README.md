@@ -1,8 +1,40 @@
-[![buildoncommit](https://github.com/digi-serve/ab_service_custom_reports/actions/workflows/build-on-commit.yml/badge.svg)](https://github.com/digi-serve/ab_service_custom_reports/actions/workflows/build-on-commit.yml) [![Total alerts](https://img.shields.io/lgtm/alerts/g/digi-serve/ab_service_custom_reports.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/digi-serve/ab_service_custom_reports/alerts/) [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/digi-serve/ab_service_custom_reports.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/digi-serve/ab_service_custom_reports/context:javascript)
+[![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/digi-serve/ab_service_custom_reports/pr-merge-release.yml?logo=github&label=Build%20%26%20Test)](https://github.com/digi-serve/ab_service_custom_reports/actions/workflows/pr-merge-release.yml)
+[![GitHub tag (with filter)](https://img.shields.io/github/v/tag/digi-serve/ab_service_custom_reports?logo=github&label=Latest%20Version)
+](https://github.com/digi-serve/ab_service_custom_reports/releases)
+[![Docker Pulls](https://img.shields.io/docker/pulls/digiserve/ab-custom-reports?logo=docker&logoColor=white&label=Docker%20Pulls)](https://hub.docker.com/r/digiserve/ab-custom-reports)
+[![Image Size](https://img.shields.io/docker/image-size/digiserve/ab-custom-reports/master?logo=docker&logoColor=white&label=Image%20Size)](https://hub.docker.com/r/digiserve/ab-custom-reports/tags)
 
-# Custom Reports
+# AppBuilder Service Custom Reports
+An AppBuilder service to generate custom reports.
 
-Service to generate custom AppBuilder reports.
+## Install
+See [ab_cli](https://github.com/digi-serve/ab-cli)
+
+## Pull Requests
+Pull Requests should be tagged with a label `major`, `minor` or `patch`. Use `major` for breaking changes, `minor` for new features, or `patch` for bug fixes. To merge without creating a release a `no_release` tag can be added instead.
+
+:pencil: In the pull request body add release notes between these tags:
+```md
+<!-- #release_notes -->
+
+<!-- /release_notes --> 
+```
+Anything between those 2 lines will be used as release notes when creating a version.
+
+### When merged:
+ - A new version will be created using semantic versioning
+ - The version will be updated in `package.json`
+ - A new tag and release will be created on GitHub
+ - A new docker image will be built, tagged with the version and published to dockerhub
+ - A Workflow in `ab_runtime` will be triggered to update the service version file.
+
+## Manually Building a Docker Image
+It may be useful to build a custom docker image from a feature branch for testing.
+This can be done through a workflow dispatch trigger.
+1. Go to the Actions tab
+2. Select the 'Docker Build Custom' workflow
+3. Select 'run Workflow' and fill in the form
+The image will be built from the selected branch and pushed to dockerhub using the given tags
 
 ## Adding Reports
 

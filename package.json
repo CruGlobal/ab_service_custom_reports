@@ -1,6 +1,6 @@
 {
    "name": "custom_reports",
-   "version": "0.0.0",
+   "version": "1.0.1+p10001",
    "description": "A cool micro service.",
    "main": "app.js",
    "author": "Coding Monkey",
@@ -13,6 +13,7 @@
       "lodash": "^4.17.21",
       "moment": "^2.29.3",
       "objection": "^2.2.18",
+      "semver": "^7.5.4",
       "xml-js": "^1.6.11"
    },
    "scripts": {

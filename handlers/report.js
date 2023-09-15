@@ -23,6 +23,7 @@ const reports = {
    "balance-report": require("../reports/balance-report.js"),
    "team-monthly": require("../reports/team-monthly.js"),
    "budget-vs-expense": require("../reports/budget-vs-expense.js"),
+   "extend-report-month": require("../reports/extend-report-month.js"),
 };
 // "balanceReport",
 // "balanceSheet",

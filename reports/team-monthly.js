@@ -28,16 +28,18 @@ const FIELD_IDS = {
    JE_ARCHIVE_DATE: "acc290cb-6f5f-4e64-9d88-7ee047462ca7",
 };
 
-async function getRC(req) {
-   const results = await utils.getData(req, QUERY_IDS.MY_RCs, { populate: false });
+async function getRC(AB, req) {
+   const queryRC = AB.queryByID(QUERY_IDS.MY_RCs).model();
+   const list = await queryRC.findAll({ populate: false }, { username: req._user.username }, req);
 
-   return results
+   return list
       .map((row) => row["BASE_OBJECT.RC Name"])
       // Remove duplicated RC
       .filter(function (rc, pos, self) { return self.indexOf(rc) == pos; });
 }
 
-async function getFY(req) {
+async function getFY(AB, req) {
+   const queryFYmonth = AB.objectByID(OBJECT_IDS.FY_MONTH).model();
    const cond = {
       where: {
          glue: "and",
@@ -59,20 +61,22 @@ async function getFY(req) {
       limit: 12,
    };
 
-   const results = await utils.getData(req, OBJECT_IDS.FY_MONTH, cond);
+   const results = await queryFYmonth.findAll(cond, { username: req._user.username }, req);
 
    return results.map((item) => item["FY Per"]);
 }
 
-async function getBalances(req, rc, fyper) {
+async function getBalances(AB, req, rc, fyper) {
    if (!fyper) return [];
+
+   const objBalance = AB.objectByID(OBJECT_IDS.BALANCE).model();
 
    // Define condition rules
    const rules = [];
 
    // Pull Balances with all of my RCs
    if (!rc || rc == ALL_RC_OPTION) {
-      const rcs = await getRC(req);
+      const rcs = await getRC(AB, req);
       rules.push({
          glue: "or",
          rules: rcs.map((rc) => {
@@ -100,26 +104,28 @@ async function getBalances(req, rc, fyper) {
    });
 
    // Pull balances
-   const results = await utils.getData(req, OBJECT_IDS.BALANCE, {
+   const results = await objBalance.findAll({
       where: {
          glue: "and",
          rules: rules,
       },
       populate: false,
-   });
+   }, { username: req._user.username }, req);
 
    return results;
 }
 
-async function getJEarchive(req, rc, fyper) {
+async function getJEarchive(AB, req, rc, fyper) {
    if (!fyper) return [];
+
+   const objJEarchive = AB.objectByID(OBJECT_IDS.JE_ARCHIVE).model();
 
    // Define condition rules
    const rules = [];
 
    // Pull JE archive with all of my RCs
    if (!rc || rc == ALL_RC_OPTION) {
-      const rcs = await getRC(req);
+      const rcs = await getRC(AB, req);
       rules.push({
          glue: "or",
          rules: rcs.map((rc) => {
@@ -141,7 +147,7 @@ async function getJEarchive(req, rc, fyper) {
    }
 
    // Pull JE archive
-   const results = await utils.getData(req, OBJECT_IDS.JE_ARCHIVE,
+   const results = await objJEarchive.findAll(
       {
          where: {
             glue: "and",
@@ -155,8 +161,8 @@ async function getJEarchive(req, rc, fyper) {
          ],
          populate: false,
       },
-      { username: req.id },
-      req.req
+      { username: req._user.username },
+      req
    );
 
    return results.map((item) => {
@@ -307,10 +313,10 @@ module.exports = {
       let jeArchives = [];
       [data.options.rc, data.options.fyper, balances, jeArchives] =
          await Promise.all([
-            getRC(req),
-            getFY(req),
-            getBalances(req, rc, fyper),
-            getJEarchive(req, rc, fyper),
+            getRC(AB, req),
+            getFY(AB, req),
+            getBalances(AB, req, rc, fyper),
+            getJEarchive(AB, req, rc, fyper),
          ]);
 
       data.rcs = calculateRCs(balances);
