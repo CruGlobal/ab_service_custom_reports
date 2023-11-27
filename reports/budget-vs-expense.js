@@ -331,7 +331,7 @@ module.exports = {
          .sort(sort);
 
       data.rcOptions = (rcs ?? [])
-         .filter(((t) => !team || t[`${teamField.alias}.${teamField.columnName}`] == team))
+         .filter(((t) => !team || (t[`${teamField.alias}.${teamField.columnName}`] ?? t[teamField.columnName]) == team))
          .map((t) => t["BASE_OBJECT.RC Name"] ?? t["RC Name"])
          // Remove duplicated RC
          .filter(function (rc, pos, self) {
