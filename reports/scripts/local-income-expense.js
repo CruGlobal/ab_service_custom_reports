@@ -14,7 +14,7 @@ const ids = {
    startViewId: `${dom_id}_start`,
    endViewId: `${dom_id}_end`,
    teamViewId: `${dom_id}_team`,
-   mccViewId: `${dom_id}_mcc`,
+   // mccViewId: `${dom_id}_mcc`,
    rcViewId: `${dom_id}_rc`,
 };
 
@@ -82,15 +82,15 @@ async function ui() {
                         width: 300,
                         options: [],
                      },
-                     {
-                        id: ids.mccViewId,
-                        view: "multiselect",
-                        placeholder: "[All]",
-                        label: "MCC:",
-                        labelWidth: 50,
-                        width: 250,
-                        options: [],
-                     },
+                     // {
+                     //    id: ids.mccViewId,
+                     //    view: "multiselect",
+                     //    placeholder: "[All]",
+                     //    label: "MCC:",
+                     //    labelWidth: 50,
+                     //    width: 250,
+                     //    options: [],
+                     // },
                      {
                         id: ids.rcViewId,
                         view: "multiselect",
@@ -121,13 +121,13 @@ function _attachEvents() {
    const $start = $$(ids.startViewId),
       $end = $$(ids.endViewId),
       $team = $$(ids.teamViewId),
-      $mcc = $$(ids.mccViewId),
+      // $mcc = $$(ids.mccViewId),
       $rc = $$(ids.rcViewId);
 
    if ($start.__onChange) $start.detachEvent($start.__onChange);
    if ($end.__onChange) $end.detachEvent($end.__onChange);
    if ($team.__onChange) $team.detachEvent($team.__onChange);
-   if ($mcc.__onChange) $mcc.detachEvent($mcc.__onChange);
+   // if ($mcc.__onChange) $mcc.detachEvent($mcc.__onChange);
    if ($rc.__onChange) $rc.detachEvent($rc.__onChange);
 
    $start.__onChange = $start.attachEvent("onChange", () => {
@@ -143,19 +143,19 @@ function _attachEvents() {
       await _defineRcOptions();
       refresh();
    });
-   $mcc.__onChange = $mcc.attachEvent("onChange", async () => {
-      const mccVal = $mcc.getValue();
+   // $mcc.__onChange = $mcc.attachEvent("onChange", async () => {
+   //    const mccVal = $mcc.getValue();
 
-      const rcs = [];
+   //    const rcs = [];
 
-      mccVal.split(",").forEach((mcc) => {
-         ($$(reportElementId()).__mccRcs || []).forEach((item) => {
-            if (item.mcc == mcc && rcs.indexOf(item.rc) < 0) rcs.push(item.rc);
-         });
-      });
+   //    mccVal.split(",").forEach((mcc) => {
+   //       ($$(reportElementId()).__mccRcs || []).forEach((item) => {
+   //          if (item.mcc == mcc && rcs.indexOf(item.rc) < 0) rcs.push(item.rc);
+   //       });
+   //    });
 
-      $rc.setValue(rcs);
-   });
+   //    $rc.setValue(rcs);
+   // });
    $rc.__onChange = $rc.attachEvent("onChange", () => {
       refresh();
    });
@@ -198,11 +198,11 @@ async function loadOptions() {
 
 const _defineRcOptions = async () => {
    const $rc = $$(ids.rcViewId);
-   const $mcc = $$(ids.mccViewId);
+   // const $mcc = $$(ids.mccViewId);
 
-   $mcc.blockEvent();
-   $mcc.setValue([]);
-   $mcc.unblockEvent();
+   // $mcc.blockEvent();
+   // $mcc.setValue([]);
+   // $mcc.unblockEvent();
 
    $rc.blockEvent();
    $rc.setValue([]);
@@ -212,7 +212,7 @@ const _defineRcOptions = async () => {
    const Teams = $$(ids.teamViewId).getValue();
    const myRCs = AB.queryByID(ids.myRCsQueryId);
    const myRCsModel = myRCs.model();
-   const mccField = myRCs.fieldByID(ids.mccFieldId);
+   // const mccField = myRCs.fieldByID(ids.mccFieldId);
    const teamList = [];
 
    (Teams || "").split(",").forEach((team) => {
@@ -225,11 +225,11 @@ const _defineRcOptions = async () => {
    $$(reportElementId()).__mccRcs = ((rcs && rcs.data) || []).map((item) => {
       return {
          rc: item["BASE_OBJECT.RC Name"],
-         mcc: item[mccField.columnName],
+         // mcc: item[mccField.columnName],
       };
    });
 
-   _defineOptions(ids.mccViewId, rcs.data || [], mccField.columnName);
+   // _defineOptions(ids.mccViewId, rcs.data || [], mccField.columnName);
    _defineOptions(ids.rcViewId, $$(reportElementId()).__mccRcs, "rc");
 
    $rc.unblockEvent();
