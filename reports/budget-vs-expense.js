@@ -311,8 +311,8 @@ module.exports = {
       data.teamOptions = (teamsArray ?? [])
          .map((t) => t["BASE_OBJECT.Name"] ?? t["Name"])
          // Remove duplicated Team
-         .filter(function (t, ft, tl) {
-            return tl.indexOf(t) == ft;
+         .filter(function (t, pos, self) {
+            return t && self.indexOf(t) == pos;
          })
          .sort(sort);
 
@@ -335,7 +335,7 @@ module.exports = {
          .map((t) => t["BASE_OBJECT.RC Name"] ?? t["RC Name"])
          // Remove duplicated RC
          .filter(function (rc, pos, self) {
-            return self.indexOf(rc) == pos;
+            return rc && self.indexOf(rc) == pos;
          })
          .sort(sort);
 
