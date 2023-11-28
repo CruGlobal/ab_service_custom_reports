@@ -11,6 +11,7 @@ const OBJECT_IDS = {
    FiscalYear: "6c398e8f-ddde-4e26-b142-353de5b16397",
    ProjectBudget: "839ac470-8f77-420c-9a30-aeaf0a9f509c",
    MinistryTeam: "138ff828-4579-412b-8b5b-98542d7aa152",
+   ResponsibilityCenter: "c3aae079-d36d-489f-ae1e-a6289536cb1a",
 };
 
 const QUERY_IDS = {
@@ -37,6 +38,8 @@ const FIELD_IDS = {
 
    myRCsTeam: "ae4ace97-f70c-4132-8fa0-1a0b1a9c7859",
    MCC_Name: "eb0f60c3-55cf-40b1-8408-64501f41fa71",
+
+   RC_MCC_Name: "f9992485-00ad-48c1-a9d6-c870915bfc78",
 };
 
 const ROLE_IDS = {
@@ -245,6 +248,7 @@ module.exports = {
 
       const allTeams = AB.objectByID(OBJECT_IDS.MinistryTeam).model();
       const myTeams = AB.queryByID(QUERY_IDS.myTeams).model();
+      const allRCs = AB.objectByID(OBJECT_IDS.ResponsibilityCenter).model();
       const myRCs = AB.queryByID(QUERY_IDS.myRCs).model();
       const queryTeamJEArchive = AB.queryByID(QUERY_IDS.teamJEArchive);
       const modelTeamJEArchive = queryTeamJEArchive.model();
@@ -252,6 +256,7 @@ module.exports = {
       const projectBudgetObj = AB.objectByID(OBJECT_IDS.ProjectBudget).model();
       const teamField = AB.queryByID(QUERY_IDS.myRCs).fieldByID(FIELD_IDS.myRCsTeam);
       const mccField = AB.queryByID(QUERY_IDS.myRCs).fieldByID(FIELD_IDS.MCC_Name);
+      const rcMccField = AB.objectByID(OBJECT_IDS.ResponsibilityCenter).fieldByID(FIELD_IDS.RC_MCC_Name);
 
       const isCoreUser = (req._user?.SITE_ROLE ?? []).filter((r) => (r.uuid ?? r) == ROLE_IDS.CORE_FINANCE).length > 0;
 
@@ -274,6 +279,14 @@ module.exports = {
             AB.req
          ),
          // Return myRCs
+         isCoreUser ?
+         allRCs.findAll(
+            {
+               populate: false,
+            },
+            { username: req._user.username },
+            AB.req
+         ) :
          myRCs.findAll(
             {
                populate: false,
@@ -292,11 +305,11 @@ module.exports = {
       ]);
 
       const selectedRcs = rcs
-            .filter((r) => (!rc && !mcc) || r["BASE_OBJECT.RC Name"] == rc || r[`${mccField.alias}.${mccField.columnName}`] == mcc)
-            .map((r) => r["BASE_OBJECT.RC Name"]);
+            .filter((r) => (!rc && !mcc) || (r["BASE_OBJECT.RC Name"] ?? r["RC Name"]) == rc || (r[`${mccField.alias}.${mccField.columnName}`] ?? r[rcMccField.columnName]) == mcc)
+            .map((r) => r["BASE_OBJECT.RC Name"] ?? r["RC Name"]);
 
       data.teamOptions = (teamsArray ?? [])
-         .map((t) => isCoreUser ? t["Name"] : t["BASE_OBJECT.Name"])
+         .map((t) => t["BASE_OBJECT.Name"] ?? t["Name"])
          // Remove duplicated Team
          .filter(function (t, ft, tl) {
             return tl.indexOf(t) == ft;
@@ -310,16 +323,16 @@ module.exports = {
       ]);
 
       data.mccOptions = (rcs ?? [])
-         .map((t) => t[`${mccField.alias}.${mccField.columnName}`])
+         .map((t) => t[`${mccField.alias}.${mccField.columnName}`] ?? t[rcMccField.columnName])
          // Remove duplicated RC
-         .filter(function (rc, pos, self) {
-            return self.indexOf(rc) == pos;
+         .filter(function (mcc, pos, self) {
+            return mcc && self.indexOf(mcc) == pos;
          })
          .sort(sort);
 
       data.rcOptions = (rcs ?? [])
-         .filter(((t) => !team || t[`${teamField.alias}.${teamField.columnName}`] == team))
-         .map((t) => t["BASE_OBJECT.RC Name"])
+         .filter(((t) => !team || (t[`${teamField.alias}.${teamField.columnName}`] ?? t[teamField.columnName]) == team))
+         .map((t) => t["BASE_OBJECT.RC Name"] ?? t["RC Name"])
          // Remove duplicated RC
          .filter(function (rc, pos, self) {
             return self.indexOf(rc) == pos;

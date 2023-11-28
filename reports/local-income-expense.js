@@ -199,6 +199,7 @@ module.exports = {
          };
 
          (Teams ?? "").split(",").forEach((team) => {
+            if (!team) return;
             teamCond.rules.push({
                key: isCoreUser ? ids.allRcTeamFieldId : ids.myRCsTeamFieldId,
                rule: "equals",
@@ -244,7 +245,7 @@ module.exports = {
       where.rules.push(fyConds);
 
       let records = [];
-      if (start && end && where?.rules?.length) {
+      if (start && end && (isCoreUser || where?.rules?.length)) {
          records = await balanceObj.findAll(
             {
                where: where,
