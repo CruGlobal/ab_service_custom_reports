@@ -31,15 +31,13 @@ function GetViewDataBalanceReport(mcc, rc, fyMonth) {
    };
 }
 
-async function GetRC(AB, req, queryId) {
-   const queryRC = AB.queryByID(queryId).model();
+async function GetRC(req, queryId) {
+   const list = await utils.getData(req, queryId);
 
    return list || [];
 }
 
-async function GetFYMonths(AB, req) {
-   const objectFYMonth = AB.objectByID(OBJECT_IDS.FY_MONTH).model();
-
+async function GetFYMonths(req) {
    const cond = {
       where: {
          glue: "or",
@@ -66,14 +64,12 @@ async function GetFYMonths(AB, req) {
       limit: 12,
    };
 
-   return (
-      await objectFYMonth.findAll(cond, { username: req._user.username }, req)
-   ).map((item) => item["FY Per"]);
+   return (await utils.getData(req, OBJECT_IDS.FY_MONTH, cond)).map(
+      (item) => item["FY Per"]
+   );
 }
 
-async function GetBalances(AB, req, rc, fyPeriod, extraRules = []) {
-   const objBalance = AB.objectByID(OBJECT_IDS.BALANCE).model();
-
+async function GetBalances(req, rc, fyPeriod, extraRules = []) {
    const cond = {
       where: {
          glue: "and",
@@ -104,7 +100,7 @@ async function GetBalances(AB, req, rc, fyPeriod, extraRules = []) {
       cond.where.rules.push(r);
    });
 
-   return await objBalance.findAll(cond, { username: req._user.username }, req);
+   return await utils.getData(req, OBJECT_IDS.BALANCE, cond);
 }
 
 module.exports = {
@@ -123,7 +119,7 @@ module.exports = {
       const rcHash = {};
 
       // Pull FY month list
-      viewData.fyOptions = await GetFYMonths(AB, req);
+      viewData.fyOptions = await GetFYMonths(req);
 
       // Check QX Role of the user
       let RCs = await GetRC(
@@ -168,7 +164,6 @@ module.exports = {
       ];
 
       const balances = await GetBalances(
-         AB,
          req,
          null,
          viewData.fyPeriod || viewData.fyOptions[0],
