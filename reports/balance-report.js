@@ -163,7 +163,7 @@ module.exports = {
       viewData.fyOptions = await GetFYMonths(req);
 
       // Check QX Role of the user
-      let RCs = []
+      let RCs = [];
       if (isCoreUser) {
          RCs = RCs.concat(await GetRC(req, OBJECT_IDS.RC));
       }
