@@ -267,6 +267,15 @@ module.exports = {
          allTeams.findAll(
             {
                populate: false,
+               where: {
+                  glue: "and",
+                  rules: [
+                     {
+                        key: "Name",
+                        rule: "is_not_empty",
+                     },
+                  ],
+               },
             },
             { username: req._user.username },
             AB.req
@@ -274,6 +283,19 @@ module.exports = {
          myTeams.findAll(
             {
                populate: false,
+               where: {
+                  glue: "and",
+                  rules: [
+                     {
+                        key: "RC Name",
+                        rule: "is_not_empty",
+                     },
+                     {
+                        key: "MCCcode",
+                        rule: "is_not_empty",
+                     },
+                  ],
+               },
             },
             { username: req._user.username },
             AB.req
