@@ -70,7 +70,7 @@ const FilterOutRC = [
 ];
 
 function sort(a, b) {
-   return (a ?? "").toLowerCase().localeCompare((b ?? "").toLowerCase());
+   return (a ?? "").toString().toLowerCase().localeCompare((b ?? "").toString().toLowerCase());
 }
 
 async function getProjectBudgets(modelProjectBudget, teams, rcs, year) {

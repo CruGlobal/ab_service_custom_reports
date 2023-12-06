@@ -200,7 +200,7 @@ module.exports = {
       }
 
       const rcNames = RCs.map((rc) => rc["BASE_OBJECT.RC Name"] ?? rc["RC Name"]).sort((a, b) =>
-         a.toLowerCase().localeCompare(b.toLowerCase())
+         (a ?? "").toString().toLowerCase().localeCompare((b ?? "").toString().toLowerCase())
       );
 
       // Pull Balance
