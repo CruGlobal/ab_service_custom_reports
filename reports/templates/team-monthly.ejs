@@ -4,41 +4,10 @@
             overflow: auto;
         }
     </style>
-    <script type="text/javascript">
-        function refresh() {
-            const rcVal = document.getElementById("rcSelect").value;
-            const fyVal = document.getElementById("fySelect").value;
-            window.location.href = `/report/team-monthly?rc=${rcVal}&fyper=${fyVal}`;
-        }
-    </script>
-    <center>
-        <h1>
-            <%= title[languageCode] %>
-        </h1>
-        <h2>
-            <span style="font-weight: normal;">
-                RC:
-            </span>
-            <select class="selector" id="rcSelect" onchange="refresh()">
-                <% options.rc.unshift(options.rcDefault); %>
-                <% for(var i=0; i < options.rc.length; i++) { %>
-                    <option <% if (rcVal==options.rc[i]) { %> selected <% } %> value="<%= options.rc[i] %>"><%=
-                                    options.rc[i] %>
-                    </option>
-                    <% } %>
-            </select>
-            <span style="font-weight: normal;">
-                FY Period:
-            </span>
-            <select class="selector" id="fySelect" onchange="refresh()">
-                <% for(var i=0; i < options.fyper.length; i++) { %>
-                    <option <% if (fyPeriod==options.fyper[i]) { %> selected <% } %> value="<%= options.fyper[i] %>"><%=
-                                    options.fyper[i] %>
-                    </option>
-                    <% } %>
-            </select>
-        </h2>
-    </center>
+      <script type="text/javascript">
+        <%- include('/app/reports/scripts/_team-rc-fy.js') %>
+        <%- include('/app/reports/scripts/team-monthly.js') %>
+     </script>
     <div>
         <table width="100%">
             <!-- Header -->
