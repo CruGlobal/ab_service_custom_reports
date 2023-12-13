@@ -32,7 +32,7 @@ const ROLE_IDS = {
    CORE_Finance: "e32dbd38-2300-4aac-84a9-d2c704bd2a29",
 }
 
-async function _getRC(req, teams) {
+async function _getRC(AB, req, teams) {
    const isCoreUser = (req._user?.SITE_ROLE ?? []).filter((r) => (r.uuid ?? r) == ROLE_IDS.CORE_Finance).length > 0;
    const teamCond = {
       glue: "or",
@@ -72,7 +72,7 @@ async function getBalances(AB, req, teams, rcs, fyper) {
 
    // Get RC values
    if (!rcs?.length) {
-      rcs = await _getRC(req, teams);
+      rcs = await _getRC(AB, req, teams);
    }
 
    // Pull Balances with all of my RCs
@@ -89,11 +89,13 @@ async function getBalances(AB, req, teams, rcs, fyper) {
       });
    }
 
-   rules.push({
-      key: FIELD_IDS.BALANCE_FYPeriod,
-      rule: "equals",
-      value: fyper,
-   });
+   if (fyper) {
+      rules.push({
+         key: FIELD_IDS.BALANCE_FYPeriod,
+         rule: "equals",
+         value: fyper,
+      });
+   }
 
    // Pull balances
    const results = await objBalance.findAll({
@@ -117,7 +119,7 @@ async function getJEarchive(AB, req, teams, rcs, fyper) {
 
    // Get RC values
    if (!rcs?.length) {
-      rcs = await _getRC(req, teams);
+      rcs = await _getRC(AB, req, teams);
    }
 
    // Pull JE archive with all of my RCs
@@ -291,8 +293,8 @@ module.exports = {
          rcs: {},
       };
 
-      const teamVals = (Teams ?? "").split(",");
-      const rcVals = (RCs ?? "").split(",");
+      const teamVals = (Teams ?? "").split(",").filter(t => t);
+      const rcVals = (RCs ?? "").split(",").filter(rc => rc);
 
       let balances = [];
       let jeArchives = [];

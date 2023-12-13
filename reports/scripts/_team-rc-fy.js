@@ -2,11 +2,16 @@ const AB = parent.AB;
 const $$ = parent.AB.Webix.$$;
 
 class TeamRcFyOptions {
-    constructor(title, domId, frameId) {
+    constructor(title, domId, frameId, options = {}) {
         this._title = title;
         this._domId = domId;
         this._frameId = frameId;
         this._webixId = `${this._domId}_webix`;
+        // {
+        //      includeEnd: BOOLEAN,
+        //      includeMCC: BOOLEAN,
+        // }
+        this._options = options;
     }
 
     get ids() {
@@ -18,11 +23,12 @@ class TeamRcFyOptions {
             myRCsTeamFieldId: "ae4ace97-f70c-4132-8fa0-1a0b1a9c7859",
             allTeamObjId: "138ff828-4579-412b-8b5b-98542d7aa152",
             monthObjId: "1d63c6ac-011a-4ffd-ae15-97e5e43f2b3f",
+            mccFieldId: "eb0f60c3-55cf-40b1-8408-64501f41fa71",
 
             startViewId: `${dom_id}_start`,
             endViewId: `${dom_id}_end`,
             teamViewId: `${dom_id}_team`,
-            // mccViewId: `${dom_id}_mcc`,
+            mccViewId: `${dom_id}_mcc`,
             rcViewId: `${dom_id}_rc`,
         };
     }
@@ -65,6 +71,7 @@ class TeamRcFyOptions {
                                     width: 210,
                                     options: [],
                                 },
+                                this._options.includeEnd ?
                                 {
                                     id: ids.endViewId,
                                     view: "richselect",
@@ -73,7 +80,7 @@ class TeamRcFyOptions {
                                     labelWidth: 20,
                                     width: 150,
                                     options: [],
-                                },
+                                } : {},
                                 { fillspace: true },
                             ],
                         },
@@ -88,15 +95,16 @@ class TeamRcFyOptions {
                                     width: 300,
                                     options: [],
                                 },
-                                // {
-                                //    id: ids.mccViewId,
-                                //    view: "multiselect",
-                                //    placeholder: "[All]",
-                                //    label: "MCC:",
-                                //    labelWidth: 50,
-                                //    width: 250,
-                                //    options: [],
-                                // },
+                                this._options.includeMCC ?
+                                    {
+                                        id: ids.mccViewId,
+                                        view: "multiselect",
+                                        placeholder: "[All]",
+                                        label: "MCC:",
+                                        labelWidth: 50,
+                                        width: 250,
+                                        options: [],
+                                    } : {},
                                 {
                                     id: ids.rcViewId,
                                     view: "multiselect",
@@ -115,8 +123,11 @@ class TeamRcFyOptions {
         });
 
         AB.Webix.extend($$(ids.startViewId), AB.Webix.ProgressBar);
-        AB.Webix.extend($$(ids.endViewId), AB.Webix.ProgressBar);
+        if ($$(ids.endViewId))
+            AB.Webix.extend($$(ids.endViewId), AB.Webix.ProgressBar);
         AB.Webix.extend($$(ids.teamViewId), AB.Webix.ProgressBar);
+        if($$(ids.mccViewId))
+            AB.Webix.extend($$(ids.mccViewId), AB.Webix.ProgressBar);
         AB.Webix.extend($$(ids.rcViewId), AB.Webix.ProgressBar);
 
         await this._loadOptions();
@@ -126,43 +137,47 @@ class TeamRcFyOptions {
     _attachEvents() {
         const ids = this.ids,
             $start = $$(ids.startViewId),
-            $end = $$(ids.endViewId),
+            $end = this._options.includeEnd ? $$(ids.endViewId) : null,
             $team = $$(ids.teamViewId),
-            // $mcc = $$(ids.mccViewId),
+            $mcc = this._options.includeMCC ? $$(ids.mccViewId) : null,
             $rc = $$(ids.rcViewId);
 
         if ($start.__onChange) $start.detachEvent($start.__onChange);
-        if ($end.__onChange) $end.detachEvent($end.__onChange);
+        if ($end?.__onChange) $end.detachEvent($end.__onChange);
         if ($team.__onChange) $team.detachEvent($team.__onChange);
-        // if ($mcc.__onChange) $mcc.detachEvent($mcc.__onChange);
+        if ($mcc?.__onChange) $mcc.detachEvent($mcc.__onChange);
         if ($rc.__onChange) $rc.detachEvent($rc.__onChange);
 
         $start.__onChange = $start.attachEvent("onChange", () => {
             const startVal = $start.getValue();
-            const endVal = $end.getValue();
+            const endVal = $end?.getValue();
 
-            if (startVal && endVal) this.refresh();
+            if (startVal && ($end && endVal || !$end)) this.refresh();
         });
-        $end.__onChange = $end.attachEvent("onChange", () => {
-            this.refresh();
-        });
+        if ($end) {
+            $end.__onChange = $end.attachEvent("onChange", () => {
+                if (startVal && endVal) this.refresh();
+            });
+        }
         $team.__onChange = $team.attachEvent("onChange", async () => {
             await this._defineRcOptions();
             this.refresh();
         });
-        // $mcc.__onChange = $mcc.attachEvent("onChange", async () => {
-        //    const mccVal = $mcc.getValue();
+        if ($mcc) {
+            $mcc.__onChange = $mcc.attachEvent("onChange", async () => {
+                const mccVal = $mcc.getValue();
 
-        //    const rcs = [];
+                const rcs = [];
 
-        //    mccVal.split(",").forEach((mcc) => {
-        //       ($$(reportElementId()).__mccRcs || []).forEach((item) => {
-        //          if (item.mcc == mcc && rcs.indexOf(item.rc) < 0) rcs.push(item.rc);
-        //       });
-        //    });
+                mccVal.split(",").forEach((mcc) => {
+                    ($$(reportElementId()).__mccRcs || []).forEach((item) => {
+                        if (item.mcc == mcc && rcs.indexOf(item.rc) < 0) rcs.push(item.rc);
+                    });
+                });
 
-        //    $rc.setValue(rcs);
-        // });
+                $rc.setValue(rcs);
+            });
+        }
         $rc.__onChange = $rc.attachEvent("onChange", () => {
             this.refresh();
         });
@@ -207,11 +222,11 @@ class TeamRcFyOptions {
     async _defineRcOptions() {
         const ids = this.ids;
         const $rc = $$(ids.rcViewId);
-        // const $mcc = $$(ids.mccViewId);
+        const $mcc = this._options.includeMCC ? $$(ids.mccViewId) : null;
 
-        // $mcc.blockEvent();
-        // $mcc.setValue([]);
-        // $mcc.unblockEvent();
+        $mcc?.blockEvent();
+        $mcc?.setValue([]);
+        $mcc?.unblockEvent();
 
         $rc.blockEvent();
         $rc.setValue([]);
@@ -221,7 +236,7 @@ class TeamRcFyOptions {
         const Teams = $$(ids.teamViewId).getValue();
         const myRCs = AB.queryByID(ids.myRCsQueryId);
         const myRCsModel = myRCs.model();
-        // const mccField = myRCs.fieldByID(ids.mccFieldId);
+        const mccField = myRCs.fieldByID(ids.mccFieldId);
         const teamList = [];
 
         (Teams || "").split(",").forEach((team) => {
@@ -234,11 +249,11 @@ class TeamRcFyOptions {
         $$(this._webixId).__mccRcs = ((rcs && rcs.data) || []).map((item) => {
             return {
                 rc: item["BASE_OBJECT.RC Name"],
-                // mcc: item[mccField.columnName],
+                mcc: item[mccField.columnName],
             };
         });
 
-        // this._defineOptions(ids.mccViewId, rcs.data || [], mccField.columnName);
+        this._defineOptions(ids.mccViewId, rcs.data || [], mccField.columnName);
         this._defineOptions(ids.rcViewId, $$(this._webixId).__mccRcs, "rc");
 
         $rc.unblockEvent();
@@ -247,6 +262,8 @@ class TeamRcFyOptions {
     };
 
     _defineOptions(webixId, list, propertyName) {
+        if (!$$(webixId)) return;
+
         const options = list
             .map((t) => t[propertyName])
             .filter((team, ft, tl) => team && tl.indexOf(team) == ft);
@@ -272,13 +289,15 @@ class TeamRcFyOptions {
         const ids = this.ids;
 
         $$(ids.startViewId).showProgress({ type: "icon" });
-        $$(ids.endViewId).showProgress({ type: "icon" });
+        $$(ids.endViewId)?.showProgress({ type: "icon" });
         $$(ids.teamViewId).showProgress({ type: "icon" });
+        $$(ids.mccViewId)?.showProgress({ type: "icon" });
         $$(ids.rcViewId).showProgress({ type: "icon" });
 
         $$(ids.startViewId).disable();
-        $$(ids.endViewId).disable();
+        $$(ids.endViewId)?.disable();
         $$(ids.teamViewId).disable();
+        $$(ids.mccViewId)?.disable();
         $$(ids.rcViewId).disable();
     }
 
@@ -286,13 +305,15 @@ class TeamRcFyOptions {
         const ids = this.ids;
 
         $$(ids.startViewId).hideProgress();
-        $$(ids.endViewId).hideProgress();
+        $$(ids.endViewId)?.hideProgress();
         $$(ids.teamViewId).hideProgress();
+        $$(ids.mccViewId)?.hideProgress();
         $$(ids.rcViewId).hideProgress();
 
         $$(ids.startViewId).enable();
-        $$(ids.endViewId).enable();
+        $$(ids.endViewId)?.enable();
         $$(ids.teamViewId).enable();
+        $$(ids.mccViewId)?.enable();
         $$(ids.rcViewId).enable();
     }
 
@@ -301,21 +322,23 @@ class TeamRcFyOptions {
             $start = $$(ids.startViewId),
             $end = $$(ids.endViewId),
             $team = $$(ids.teamViewId),
+            $mcc = $$(ids.mccViewId),
             $rc = $$(ids.rcViewId);
 
-        const startVal = $start.getValue(),
-            endVal = $end.getValue(),
-            teamVal = $team.getValue()
+        const start = $start.getValue() ?? "",
+            end = $end?.getValue() ?? "",
+            team = $team.getValue()
                 ? $team.getValue()
                 : $team
                     .getList()
                     .data.find({})
                     .map((t) => t["Name"] || t["BASE_OBJECT.Name"])
                     .join(","),
-            rcVal = $rc.getValue();
+            mcc = $mcc?.getValue() ?? "",
+            rc = $rc.getValue() ?? "";
 
         const iFrame = parent.document.getElementById(this._frameId);
 
-        iFrame.src = this.getURL(teamVal, rcVal, startVal, endVal);
+        iFrame.src = this.getURL({ start, end, team, mcc, rc });
     }
 };

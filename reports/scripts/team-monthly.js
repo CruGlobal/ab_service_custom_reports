@@ -4,5 +4,5 @@ const title = "<%= title[languageCode] %>",
 
 const optInstance = new TeamRcFyOptions(title, domId, frameId);
 optInstance.generateUI();
-optInstance.getURL = (teamVal, rcVal, startVal, endVal) =>
-   `/report/team-monthly?Teams=${teamVal}&RCs=${rcVal}&start=${startVal}&end=${endVal}`;
+optInstance.getURL = ({ start, team, rc }) =>
+   `/report/team-monthly?Teams=${team}&RCs=${rc}&fyper=${start}`;

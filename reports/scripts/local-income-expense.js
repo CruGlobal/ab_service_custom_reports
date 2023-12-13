@@ -2,7 +2,7 @@ const title = "<%= title[languageCode] %>",
    domId = "local-income-expense-report",
    frameId = "local-income-expense-report-frame";
 
-const optInstance = new TeamRcFyOptions(title, domId, frameId);
+const optInstance = new TeamRcFyOptions(title, domId, frameId, { includeEnd: true });
 optInstance.generateUI();
-optInstance.getURL = (teamVal, rcVal, startVal, endVal) =>
-   `/report/local-income-expense?Teams=${teamVal}&RCs=${rcVal}&start=${startVal}&end=${endVal}`;
+optInstance.getURL = ({ team, rc, start, end }) =>
+   `/report/local-income-expense?Teams=${team}&RCs=${rc}&start=${start}&end=${end}`;

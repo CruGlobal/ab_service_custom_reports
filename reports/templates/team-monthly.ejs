@@ -21,7 +21,6 @@
             </tr>
             <!-- Data -->
             <% for(const rcCode in rcs) { %>
-                <% if (rcCode != options.rcDefault) { %>
                 <tr>
                     <td>
                         <%= rcCode || "" %>
@@ -42,7 +41,6 @@
                         <%= fnValueFormat(rcs[rcCode].end || 0) %>
                     </td>
                 </tr>
-                <% } %>
             <% } %>
         </table>
     </div>
