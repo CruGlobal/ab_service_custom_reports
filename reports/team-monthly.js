@@ -89,13 +89,11 @@ async function getBalances(AB, req, teams, rcs, fyper) {
       });
    }
 
-   if (fyper) {
-      rules.push({
-         key: FIELD_IDS.BALANCE_FYPeriod,
-         rule: "equals",
-         value: fyper,
-      });
-   }
+   rules.push({
+      key: FIELD_IDS.BALANCE_FYPeriod,
+      rule: "equals",
+      value: fyper,
+   });
 
    // Pull balances
    const results = await objBalance.findAll({
