@@ -7,8 +7,6 @@ const fs = require("fs");
 const path = require("path");
 const utils = require("./_utils");
 
-const ALL_RC_OPTION = "[My Team]";
-
 const QUERY_IDS = {
    MY_RCs: "241a977c-7748-420d-9dcb-eff53e66a43f",
 };
@@ -17,6 +15,7 @@ const OBJECT_IDS = {
    FY_MONTH: "1d63c6ac-011a-4ffd-ae15-97e5e43f2b3f",
    BALANCE: "bb9aaf02-3265-4b8c-9d9a-c0b447c2d804",
    JE_ARCHIVE: "ae1828a8-9aae-40d9-ba16-3dfe9c1b2481",
+   RC: "c3aae079-d36d-489f-ae1e-a6289536cb1a",
 };
 
 const FIELD_IDS = {
@@ -26,47 +25,44 @@ const FIELD_IDS = {
    BALANCE_RCCode: "7cdadcef-70a1-408a-b4b9-fdbf3c261d2b",
    JE_ARCHIVE_BAL_ID: "1b67bcfb-d9c6-47ce-bb78-8d689e12b3e9",
    JE_ARCHIVE_DATE: "acc290cb-6f5f-4e64-9d88-7ee047462ca7",
+   ALL_RC_Team: "ae4ace97-f70c-4132-8fa0-1a0b1a9c7859",
 };
 
-async function getRC(AB, req) {
-   const queryRC = AB.queryByID(QUERY_IDS.MY_RCs).model();
-   const list = await queryRC.findAll({ populate: false }, { username: req._user.username }, req);
-
-   return list
-      .map((row) => row["BASE_OBJECT.RC Name"])
-      // Remove duplicated RC
-      .filter(function (rc, pos, self) { return self.indexOf(rc) == pos; });
+const ROLE_IDS = {
+   CORE_Finance: "e32dbd38-2300-4aac-84a9-d2c704bd2a29",
 }
 
-async function getFY(AB, req) {
-   const queryFYmonth = AB.objectByID(OBJECT_IDS.FY_MONTH).model();
-   const cond = {
-      where: {
-         glue: "and",
-         rules: [
-            {
-               key: FIELD_IDS.FY_MONTH_STATUS,
-               rule: "equals",
-               value: "1592549786113",
-            },
-         ],
-      },
-      populate: false,
-      sort: [
-         {
-            key: FIELD_IDS.FY_MONTH_END,
-            dir: "DESC",
-         },
-      ],
-      limit: 12,
+async function _getRC(AB, req, teams) {
+   const isCoreUser = (req._user?.SITE_ROLE ?? []).filter((r) => (r.uuid ?? r) == ROLE_IDS.CORE_Finance).length > 0;
+   const teamCond = {
+      glue: "or",
+      rules: [],
    };
 
-   const results = await queryFYmonth.findAll(cond, { username: req._user.username }, req);
+   teams.forEach((team) => {
+      if (!team) return;
+      teamCond.rules.push({
+         key: FIELD_IDS.ALL_RC_Team,
+         rule: "equals",
+         value: team,
+      });
+   });
 
-   return results.map((item) => item["FY Per"]);
+   const allRCs = AB.objectByID(OBJECT_IDS.RC).model();
+   const myRCs = AB.queryByID(QUERY_IDS.MY_RCs).model();
+   const rcsModel = isCoreUser ? allRCs : myRCs;
+
+   return (await rcsModel.findAll(
+      {
+         where: teamCond,
+         populate: false,
+      },
+      { username: req._user.username },
+      AB.req
+   )).map((t) => isCoreUser ? t["RC Name"] : t["BASE_OBJECT.RC Name"]);
 }
 
-async function getBalances(AB, req, rc, fyper) {
+async function getBalances(AB, req, teams, rcs, fyper) {
    if (!fyper) return [];
 
    const objBalance = AB.objectByID(OBJECT_IDS.BALANCE).model();
@@ -74,9 +70,13 @@ async function getBalances(AB, req, rc, fyper) {
    // Define condition rules
    const rules = [];
 
+   // Get RC values
+   if (!rcs?.length) {
+      rcs = await _getRC(AB, req, teams);
+   }
+
    // Pull Balances with all of my RCs
-   if (!rc || rc == ALL_RC_OPTION) {
-      const rcs = await getRC(AB, req);
+   if (rcs?.length) {
       rules.push({
          glue: "or",
          rules: rcs.map((rc) => {
@@ -86,14 +86,6 @@ async function getBalances(AB, req, rc, fyper) {
                value: rc,
             };
          }),
-      });
-   }
-   // Pull Balances with a specific RC
-   else if (rc != null) {
-      rules.push({
-         key: FIELD_IDS.BALANCE_RCCode,
-         rule: "equals",
-         value: rc,
       });
    }
 
@@ -115,7 +107,7 @@ async function getBalances(AB, req, rc, fyper) {
    return results;
 }
 
-async function getJEarchive(AB, req, rc, fyper) {
+async function getJEarchive(AB, req, teams, rcs, fyper) {
    if (!fyper) return [];
 
    const objJEarchive = AB.objectByID(OBJECT_IDS.JE_ARCHIVE).model();
@@ -123,9 +115,13 @@ async function getJEarchive(AB, req, rc, fyper) {
    // Define condition rules
    const rules = [];
 
+   // Get RC values
+   if (!rcs?.length) {
+      rcs = await _getRC(AB, req, teams);
+   }
+
    // Pull JE archive with all of my RCs
-   if (!rc || rc == ALL_RC_OPTION) {
-      const rcs = await getRC(AB, req);
+   if (rcs?.length) {
       rules.push({
          glue: "or",
          rules: rcs.map((rc) => {
@@ -135,14 +131,6 @@ async function getJEarchive(AB, req, rc, fyper) {
                value: `${fyper}%${rc}`,
             }
          })
-      });
-   }
-   // Pull JE archive with a specific RC
-   else {
-      rules.push({
-         key: FIELD_IDS.JE_ARCHIVE_BAL_ID,
-         rule: "contains",
-         value: `${fyper}%${rc}`,
       });
    }
 
@@ -291,7 +279,8 @@ function calculateRcDetail(AB, jeArchives, fyper, rcs = {}) {
 
 module.exports = {
    // GET: /report/team-monthly
-   prepareData: async (AB, { rc, fyper }, req) => {
+   // Teams, RCs, start, end
+   prepareData: async (AB, { Teams, RCs, fyper }, req) => {
       const data = {
          current_path: __dirname,
          title: {
@@ -299,24 +288,18 @@ module.exports = {
             zh: "团队月度收支报告",
          },
          fnValueFormat: utils.valueFormat,
-         rcVal: rc,
-         fyPeriod: fyper,
-         options: {
-            rcDefault: ALL_RC_OPTION,
-            rc: [],
-            fyper: [],
-         },
          rcs: {},
       };
 
+      const teamVals = (Teams ?? "").split(",").filter(t => t);
+      const rcVals = (RCs ?? "").split(",").filter(rc => rc);
+
       let balances = [];
       let jeArchives = [];
-      [data.options.rc, data.options.fyper, balances, jeArchives] =
+      [balances, jeArchives] =
          await Promise.all([
-            getRC(AB, req),
-            getFY(AB, req),
-            getBalances(AB, req, rc, fyper),
-            getJEarchive(AB, req, rc, fyper),
+            getBalances(AB, req, teamVals, rcVals, fyper),
+            getJEarchive(AB, req, teamVals, rcVals, fyper),
          ]);
 
       data.rcs = calculateRCs(balances);
