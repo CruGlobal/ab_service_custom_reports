@@ -18,6 +18,8 @@ class TeamRcFyOptions {
         const dom_id = this._domId;
 
         return {
+            coreFinanceRoleId: "e32dbd38-2300-4aac-84a9-d2c704bd2a29",
+
             myTeamsQueryId: "62a0c464-1e67-4cfb-9592-a7c5ed9db45c",
             myRCsQueryId: "241a977c-7748-420d-9dcb-eff53e66a43f",
             myRCsTeamFieldId: "ae4ace97-f70c-4132-8fa0-1a0b1a9c7859",
@@ -153,6 +155,7 @@ class TeamRcFyOptions {
             const endVal = $end?.getValue();
 
             if (startVal && ($end && endVal || !$end)) this.refresh();
+            // if (startVal && (($end && endVal) || !$end)) this.refresh();
         });
         if ($end) {
             $end.__onChange = $end.attachEvent("onChange", () => {
