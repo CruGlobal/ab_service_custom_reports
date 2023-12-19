@@ -32,7 +32,19 @@
         document.title = "<%= title[languageCode] %>";
 
         function refresh() {
-            let fyVal = document.getElementById("fySelect").value;
+            const rootDoc = window.parent.document;
+            const iFrame = rootDoc.querySelector("iframe#balance-sheet");
+            if (iFrame) {
+                const loadingElem = document.createElement("div");
+                loadingElem.id = "balance-sheet-loading";
+                loadingElem.innerText = "Loading...";
+                iFrame.parentElement.insertAdjacentElement("beforeBegin", loadingElem);
+                iFrame.addEventListener("load", function() {
+                    loadingElem.remove();
+                }, { once: true });
+            }
+
+            var fyVal = document.getElementById("fySelect").value;
             window.location.href = `/report/balance-sheet?fyper=${fyVal}`;
         }
     </script>
