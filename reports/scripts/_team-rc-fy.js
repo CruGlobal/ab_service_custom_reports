@@ -113,7 +113,7 @@ class TeamRcFyOptions {
                                     placeholder: "[All]",
                                     label: "RC:",
                                     labelWidth: 50,
-                                    width: 250,
+                                    width: 350,
                                     options: [],
                                 },
                             ],
@@ -321,6 +321,8 @@ class TeamRcFyOptions {
     }
 
     refresh() {
+        this._busy();
+
         const ids = this.ids,
             $start = $$(ids.startViewId),
             $end = $$(ids.endViewId),
@@ -342,6 +344,7 @@ class TeamRcFyOptions {
 
         const iFrame = parent.document.getElementById(this._frameId);
 
+        iFrame.addEventListener("load", () => { this._ready(); }, { once: true });
         iFrame.src = this.getURL({ start, end, team, mcc, rc });
     }
 };

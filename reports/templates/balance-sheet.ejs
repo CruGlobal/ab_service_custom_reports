@@ -32,7 +32,10 @@
         document.title = "<%= title[languageCode] %>";
 
         function refresh() {
-            let fyVal = document.getElementById("fySelect").value;
+            <%- include('/app/reports/scripts/_loading-cursor.js') %>
+            showLoadingBar("balance-sheet", "balance-sheet-loading");
+
+            var fyVal = document.getElementById("fySelect").value;
             window.location.href = `/report/balance-sheet?fyper=${fyVal}`;
         }
     </script>
