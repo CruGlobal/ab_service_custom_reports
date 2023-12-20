@@ -113,7 +113,7 @@ class TeamRcFyOptions {
                                     placeholder: "[All]",
                                     label: "RC:",
                                     labelWidth: 50,
-                                    width: 250,
+                                    width: 350,
                                     options: [],
                                 },
                             ],
