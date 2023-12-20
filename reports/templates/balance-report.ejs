@@ -12,6 +12,9 @@
     </style>
     <script type="text/javascript">
         function refresh() {
+            <%- include('/app/reports/scripts/_loading-cursor.js') %>
+            showLoadingBar("balance-report-frame", "balance-report-loading");
+
             let mccVal = document.getElementById("mcc").value;
             let rcVal = document.getElementById("rcType").value || "team";
             let fyVal = document.getElementById("fySelect").value;

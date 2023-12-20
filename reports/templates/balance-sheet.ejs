@@ -32,21 +32,8 @@
         document.title = "<%= title[languageCode] %>";
 
         function refresh() {
-            const rootDoc = window.parent.document;
-            const iFrame = rootDoc.querySelector("iframe#balance-sheet");
-            if (iFrame) {
-                const loadingElem = document.createElement("div");
-                loadingElem.id = "balance-sheet-loading";
-                loadingElem.innerHTML = "<div class='webix_progress_top' role='progressbar' aria-valuemin='0' aria-valuemax='100' tabindex='0' style='color: #fff; height: 20px;'><div class='webix_progress_state' style='transition-duration: 10s; width: 0%; height: 100%;'> Loading...</div></div>";
-                iFrame.parentElement.insertAdjacentElement("beforeBegin", loadingElem);
-                iFrame.addEventListener("load", function() {
-                    loadingElem.remove();
-                }, { once: true });
-
-                setTimeout(function() {
-                    loadingElem.querySelector(".webix_progress_state").style.width = "100%";
-                }, 1);
-            }
+            <%- include('/app/reports/scripts/_loading-cursor.js') %>
+            showLoadingBar("balance-sheet", "balance-sheet-loading");
 
             var fyVal = document.getElementById("fySelect").value;
             window.location.href = `/report/balance-sheet?fyper=${fyVal}`;
