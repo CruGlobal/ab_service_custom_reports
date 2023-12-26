@@ -26,6 +26,7 @@ class TeamRcFyOptions {
             allTeamObjId: "138ff828-4579-412b-8b5b-98542d7aa152",
             monthObjId: "1d63c6ac-011a-4ffd-ae15-97e5e43f2b3f",
             mccFieldId: "eb0f60c3-55cf-40b1-8408-64501f41fa71",
+            fiscalFieldId: "e696e49e-651e-4eee-960a-095b2b1f7720",
 
             startViewId: `${dom_id}_start`,
             endViewId: `${dom_id}_end`,
@@ -207,11 +208,12 @@ class TeamRcFyOptions {
             // return year
             monthObj.findAll({
                 populate: false,
+                sort: [{ key: ids.fiscalFieldId, dir: "DESC" }],
             }),
         ]);
 
-        this._defineOptions(ids.startViewId, (months && months.data) || [], "FY Per");
-        this._defineOptions(ids.endViewId, (months && months.data) || [], "FY Per");
+        this._defineOptions(ids.startViewId, (months && months.data) || [], "FY Per", false);
+        this._defineOptions(ids.endViewId, (months && months.data) || [], "FY Per", false);
         this._defineOptions(
             ids.teamViewId,
             (teams && teams.data) || [],
@@ -264,16 +266,19 @@ class TeamRcFyOptions {
         $rc.enable();
     };
 
-    _defineOptions(webixId, list, propertyName) {
+    _defineOptions(webixId, list, propertyName, isSorted = true) {
         if (!$$(webixId)) return;
 
-        const options = list
+        let options = list
             .map((t) => t[propertyName])
             .filter((team, ft, tl) => team && tl.indexOf(team) == ft);
 
+        if (isSorted)
+            options = options.sort(this._sort);
+
         $$(webixId).define(
             "options",
-            options.sort(this._sort).map((opt) => {
+            options.map((opt) => {
                 return {
                     id: opt,
                     value: opt,
