@@ -16,7 +16,7 @@ function valueFormat(number) {
 module.exports = {
    // GET: /report/local-income-expense
    // get the local and expense income and calculate the sums
-   prepareData: async (AB, { fyper }) => {
+   prepareData: async (AB, { fyperstart, fyperend }) => {
       // Object Ids
       const ids = {
          balanceID: "bb9aaf02-3265-4b8c-9d9a-c0b447c2d804",
@@ -161,49 +161,51 @@ module.exports = {
             limit: 12,
          });
 
-      data.fyper = fyper || fiscalMonthsArray[0]["FY Per"];
+      // data.fyper = fyper || fiscalMonthsArray[0]["FY Per"];
 
-      // Set default FY period when .fyper value is invalid
-      if (
-         !(fiscalMonthsArray || []).filter((fp) => fp["FY Per"] == data.fyper)
-            .length
-      ) {
-         data.fyper = fiscalMonthsArray[0]["FY Per"];
-      }
+      // // Set default FY period when .fyper value is invalid
+      // if (
+      //    !(fiscalMonthsArray || []).filter((fp) => fp["FY Per"] == data.fyper)
+      //       .length
+      // ) {
+      //    data.fyper = fiscalMonthsArray[0]["FY Per"];
+      // }
 
-      let fyperOptions = [];
-      let i = 0;
-      let currIndex = 0;
-      fiscalMonthsArray.forEach((fp) => {
-         var dateObj = new Date(fp["End"]);
-         var month = dateObj.getUTCMonth() + 1; //months from 1-12
-         var year = dateObj.getUTCFullYear();
-         var prettyDate = year + "/" + (month > 9 ? month : "0" + month);
-         var option = { id: fp["FY Per"], label: prettyDate };
-         if (fyper == fp["FY Per"]) {
-            option.selected = true;
-            currIndex = i;
-         }
-         fyperOptions.push(option);
-         i++;
-      });
-      data.fyperOptions = fyperOptions;
-      var dateObj = new Date(fiscalMonthsArray[currIndex]["End"]);
-      var month = dateObj.getUTCMonth() + 1; //months from 1-12
-      var year = dateObj.getUTCFullYear();
-      data.fyperend = year + "/" + (month > 9 ? month : "0" + month);
-      let startYear = year;
-      if (month < 7) {
-         startYear = year - 1;
-      }
-      data.fyperstart = startYear + "/07";
+      // let fyperOptions = [];
+      // let i = 0;
+      // let currIndex = 0;
+      // fiscalMonthsArray.forEach((fp) => {
+      //    var dateObj = new Date(fp["End"]);
+      //    var month = dateObj.getUTCMonth() + 1; //months from 1-12
+      //    var year = dateObj.getUTCFullYear();
+      //    var prettyDate = year + "/" + (month > 9 ? month : "0" + month);
+      //    var option = { id: fp["FY Per"], label: prettyDate };
+      //    if (fyper == fp["FY Per"]) {
+      //       option.selected = true;
+      //       currIndex = i;
+      //    }
+      //    fyperOptions.push(option);
+      //    i++;
+      // });
+      data.fyperOptions = fiscalMonthsArray.map((fp) => fp["FY Per"]);
+      // var dateObj = new Date(fiscalMonthsArray[currIndex]["End"]);
+      // var month = dateObj.getUTCMonth() + 1; //months from 1-12
+      // var year = dateObj.getUTCFullYear();
+      // data.fyperend = year + "/" + (month > 9 ? month : "0" + month);
+      data.fyperstart = fyperstart;
+      data.fyperend = fyperend;
+      // let startYear = year;
+      // if (month < 7) {
+      //    startYear = year - 1;
+      // }
+      // data.fyperstart = startYear + "/07";
 
       let balanceObj = AB.objectByID(ids.balanceID).model();
 
       balances = await balanceObj.findAll(
          {
             where: {
-               glue: "and",
+               glue: "or",
                rules: [
                   // TODO replace these rules @achoobert
                   // rc seems to not be defined for income vs expense?
@@ -212,11 +214,16 @@ module.exports = {
                   //    rule: "equals",
                   //    value: rc,
                   // },
-                  {
+                  data.fyperstart ? {
                      key: "FY Period",
                      rule: "equals",
-                     value: data.fyper,
-                  },
+                     value: data.fyperstart,
+                  } : null,
+                  data.fyperend ? {
+                     key: "FY Period",
+                     rule: "equals",
+                     value: data.fyperend,
+                  } : null,
                ],
             },
             populate: ["RC Code"],
