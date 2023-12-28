@@ -65,18 +65,39 @@
       font-size: 24px;
       margin: 10px;
    }
+
+   select.option {
+      font-size: 24px;
+      color: gray;
+      border: 1px solid #CCC;
+   }
 </style>
+
+<script>
+   function refresh() {
+      const fyperstart = document.getElementById("fyperstart").value;
+      const fyperend = document.getElementById("fyperend").value;
+
+      window.location.href = `/report/income-vs-expense?fyperstart=${fyperstart}&fyperend=${fyperend}`;
+   }
+</script>
 
 <h1>Income and Expense Report</h1>
 <h2>
-   <span style="color: lightgray; font-weight: normal;">
-      <%= fyperstart %>-
-   </span>
-   <select style="font-size: 24px; color: lightgray; border: 1px solid #CCC;"
-      onchange="location.href = '/report/income-vs-expense?fyper='+this.value;">
+   <select id="fyperstart" class="option" onchange="refresh()">
       <% for(var i=0; i < fyperOptions.length; i++) { %>
-         <option <% if (fyperOptions[i].selected) { %> selected <% } %> value="<%= fyperOptions[i].id %>"><%=
-                     fyperOptions[i].label %>
+         <option <% if (fyperstart==fyperOptions[i]) { %> selected <% } %> value="<%= fyperOptions[i] %>"><%=
+            fyperOptions[i] %>
+         </option>
+         <% } %>
+   </select>
+   <span style="color: lightgray; font-weight: normal;">
+      -
+   </span>
+   <select id="fyperend" class="option" onchange="refresh()">
+      <% for(var i=0; i < fyperOptions.length; i++) { %>
+         <option <% if (fyperend==fyperOptions[i]) { %> selected <% } %> value="<%= fyperOptions[i] %>"><%=
+            fyperOptions[i] %>
          </option>
          <% } %>
    </select>
