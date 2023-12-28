@@ -202,35 +202,37 @@ module.exports = {
 
       let balanceObj = AB.objectByID(ids.balanceID).model();
 
-      balances = await balanceObj.findAll(
-         {
-            where: {
-               glue: "or",
-               rules: [
-                  // TODO replace these rules @achoobert
-                  // rc seems to not be defined for income vs expense?
-                  // {
-                  //    key: "RC Code",
-                  //    rule: "equals",
-                  //    value: rc,
-                  // },
-                  data.fyperstart ? {
-                     key: "FY Period",
-                     rule: "equals",
-                     value: data.fyperstart,
-                  } : null,
-                  data.fyperend ? {
-                     key: "FY Period",
-                     rule: "equals",
-                     value: data.fyperend,
-                  } : null,
-               ],
+      if (!data.fyperstart && !data.fyperend) {
+         balances = await balanceObj.findAll(
+            {
+               where: {
+                  glue: "or",
+                  rules: [
+                     // TODO replace these rules @achoobert
+                     // rc seems to not be defined for income vs expense?
+                     // {
+                     //    key: "RC Code",
+                     //    rule: "equals",
+                     //    value: rc,
+                     // },
+                     data.fyperstart ? {
+                        key: "FY Period",
+                        rule: "equals",
+                        value: data.fyperstart,
+                     } : null,
+                     data.fyperend ? {
+                        key: "FY Period",
+                        rule: "equals",
+                        value: data.fyperend,
+                     } : null,
+                  ],
+               },
+               populate: ["RC Code"],
             },
-            populate: ["RC Code"],
-         },
-         { username: AB.id },
-         AB.req
-      );
+            { username: AB.id },
+            AB.req
+         );
+      }
 
       data.mccs = mccs;
       data.fnValueFormat = valueFormat;
