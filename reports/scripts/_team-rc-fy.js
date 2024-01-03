@@ -145,6 +145,10 @@ class TeamRcFyOptions {
             $mcc = this._options.includeMCC ? $$(ids.mccViewId) : null,
             $rc = $$(ids.rcViewId);
 
+        // Fix: this prevents an error when $end.__onChange is fired
+        // before $start.__onChange;
+        var startVal, endVal;
+
         if ($start.__onChange) $start.detachEvent($start.__onChange);
         if ($end?.__onChange) $end.detachEvent($end.__onChange);
         if ($team.__onChange) $team.detachEvent($team.__onChange);
@@ -152,8 +156,8 @@ class TeamRcFyOptions {
         if ($rc.__onChange) $rc.detachEvent($rc.__onChange);
 
         $start.__onChange = $start.attachEvent("onChange", () => {
-            const startVal = $start.getValue();
-            const endVal = $end?.getValue();
+            startVal = $start.getValue();
+            endVal = $end?.getValue();
 
             if (startVal && ($end && endVal || !$end)) this.refresh();
             // if (startVal && (($end && endVal) || !$end)) this.refresh();
