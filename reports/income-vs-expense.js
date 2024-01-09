@@ -202,7 +202,7 @@ module.exports = {
 
       let balanceObj = AB.objectByID(ids.balanceID).model();
 
-      if (!data.fyperstart && !data.fyperend) {
+      if (data.fyperstart || data.fyperend) {
          balances = await balanceObj.findAll(
             {
                where: {
