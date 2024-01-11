@@ -68,8 +68,8 @@ async function GetTeams(AB, req, isCoreUser) {
       });
 }
 
-async function GetRC(req, queryId) {
-   const list = await utils.getData(req, queryId);
+async function GetRC(req, queryId, cond) {
+   const list = await utils.getData(req, queryId, cond);
 
    return list || [];
 }
@@ -165,7 +165,9 @@ module.exports = {
       // Check QX Role of the user
       let RCs = [];
       if (isCoreUser) {
-         RCs = RCs.concat(await GetRC(req, OBJECT_IDS.RC));
+         RCs = RCs.concat(await GetRC(req, OBJECT_IDS.RC, {
+            populate: ["MCCcode"],
+         }));
       }
       else if (viewData.rcType == "qx") {
          RCs = RCs.concat(await GetRC(req, QUERY_IDS.MyQXRC));
@@ -181,7 +183,7 @@ module.exports = {
 
       // MCC option list
       viewData.mccOptions = RCs.map(
-         (rc) => rc[`${mccField.alias}.${mccField.columnName}`] ?? rc["MCCcode"]
+         (rc) => rc[`${mccField.alias}.${mccField.columnName}`] ?? rc["MCCcode__relation"]?.[mccField.columnName]
       ).filter((mcc, ft, tl) => mcc && tl.indexOf(mcc) == ft);
 
       if (team) {
