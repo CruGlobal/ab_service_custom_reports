@@ -197,7 +197,7 @@ module.exports = {
 
       if (mcc) {
          RCs = RCs.filter(
-            (rc) => (rc[`${mccField.alias}.${mccField.columnName}`] ?? rc[mccField.columnName]) == mcc
+            (rc) => (rc[`${mccField.alias}.${mccField.columnName}`] ?? rc["MCCcode__relation"]?.[mccField.columnName] ?? rc[mccField.columnName]) == mcc
          );
       }
 
