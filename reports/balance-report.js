@@ -7,6 +7,7 @@ const OBJECT_IDS = {
    RC: "c3aae079-d36d-489f-ae1e-a6289536cb1a",
    FY_MONTH: "1d63c6ac-011a-4ffd-ae15-97e5e43f2b3f",
    BALANCE: "bb9aaf02-3265-4b8c-9d9a-c0b447c2d804",
+   MCC: "cdd5e9ca-fed6-4fab-ace8-925b58d592e4",
 };
 
 const QUERY_IDS = {
@@ -66,6 +67,12 @@ async function GetTeams(AB, req, isCoreUser) {
       .filter(function (t, pos, self) {
          return t && self.indexOf(t) == pos;
       });
+}
+
+async function GetMCC(AB, req) {
+   return await utils.getData(req, OBJECT_IDS.MCC, {
+      populate: false,
+   });
 }
 
 async function GetRC(req, queryId, cond) {
@@ -156,17 +163,40 @@ module.exports = {
        */
       const rcHash = {};
 
+      const [teamOpts, fyOpts, mccOpts] = await Promise.all([
+         GetTeams(AB, req, isCoreUser),
+         GetFYMonths(req),
+         GetMCC(AB, req),
+      ]);
+
+      const query = AB.queryByID(
+         viewData.rcType == "qx" ? QUERY_IDS.MyQXRC : QUERY_IDS.MyTeamRC
+      );
+
+      const mccField = query.fieldByID(FIELDS_IDS.mccFieldId);
+      const mccName = mccOpts.filter((m) => m.id == mcc)[0]?.[mccField.columnName];
+
       // Return teams
-      viewData.teamOptions = await GetTeams(AB, req, isCoreUser);
+      viewData.teamOptions = teamOpts;
 
       // Pull FY month list
-      viewData.fyOptions = await GetFYMonths(req);
+      viewData.fyOptions = fyOpts;
 
       // Check QX Role of the user
       let RCs = [];
       if (isCoreUser) {
          RCs = RCs.concat(await GetRC(req, OBJECT_IDS.RC, {
-            populate: ["MCCcode"],
+            populate: false,
+            where: {
+               glue: "and",
+               rules: mccName ? [
+                  {
+                     key: mccField.columnName,
+                     rule: "equals",
+                     value: mccName,
+                  },
+               ] : [],
+            },
          }));
       }
       else if (viewData.rcType == "qx") {
@@ -176,15 +206,16 @@ module.exports = {
          RCs = RCs.concat(await GetRC(req, QUERY_IDS.MyTeamRC));
       }
 
-      const query = AB.queryByID(
-         viewData.rcType == "qx" ? QUERY_IDS.MyQXRC : QUERY_IDS.MyTeamRC
-      );
-      const mccField = query.fieldByID(FIELDS_IDS.mccFieldId);
-
       // MCC option list
-      viewData.mccOptions = RCs.map(
-         (rc) => rc[`${mccField.alias}.${mccField.columnName}`] ?? rc["MCCcode__relation"]?.[mccField.columnName]
-      ).filter((mcc, ft, tl) => mcc && tl.indexOf(mcc) == ft);
+      viewData.mccOptions = mccOpts
+         .filter((m) => RCs.filter((rc) => m[mccField.columnName] == rc[`${mccField.alias}.${mccField.columnName}`] || m["MCC Num"] == rc["MCCcode"]).length)
+         .map((m) => {
+            return {
+               id: m["MCC Num"],
+               name: m[mccField.columnName]
+            }
+         })
+         // .filter((m, ft, tl) => m && tl.indexOf(m) == ft);
 
       if (team) {
          const rcTeamField = AB.objectByID(OBJECT_IDS.RC).fieldByID(FIELDS_IDS.RC_Team);
@@ -196,9 +227,10 @@ module.exports = {
       }
 
       if (mcc) {
-         RCs = RCs.filter(
-            (rc) => (rc[`${mccField.alias}.${mccField.columnName}`] ?? rc["MCCcode__relation"]?.[mccField.columnName] ?? rc[mccField.columnName]) == mcc
-         );
+         RCs = RCs.filter((rc) => {
+            const mccVal = rc[`${mccField.alias}.${mccField.columnName}`] ?? rc["MCCcode"] ?? rc[mccField.columnName];
+            return mccVal == mcc || mccVal == mccName
+         });
       }
 
       const rcNames = RCs.map((rc) => rc["BASE_OBJECT.RC Name"] ?? rc["RC Name"]).sort((a, b) =>
