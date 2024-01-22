@@ -213,7 +213,7 @@ module.exports = {
             return {
                id: m["MCC Num"],
                name: m[mccField.columnName]
-            };
+            }
          })
          // .filter((m, ft, tl) => m && tl.indexOf(m) == ft);
 
