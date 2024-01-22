@@ -39,8 +39,8 @@
             <select class="selector" id="mcc" onchange="refresh()">
                 <option>[All]</option>
                 <% for(var i=0; i < mccOptions.length; i++) { %>
-                    <option <% if (mcc==mccOptions[i]) { %> selected <% } %> value="<%= mccOptions[i] %>">
-                                <%=mccOptions[i] %>
+                    <option <% if (mcc==mccOptions[i].id) { %> selected <% } %> value="<%= mccOptions[i].id %>">
+                                <%=mccOptions[i].name %>
                     </option>
                     <% } %>
             </select>
