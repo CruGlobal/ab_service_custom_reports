@@ -113,7 +113,7 @@ async function GetFYMonths(req) {
    );
 }
 
-async function GetBalances(req, rc, fyPeriod, extraRules = []) {
+async function GetBalances(AB, rc, fyPeriod, extraRules = []) {
    const cond = {
       where: {
          glue: "and",
@@ -144,7 +144,9 @@ async function GetBalances(req, rc, fyPeriod, extraRules = []) {
       cond.where.rules.push(r);
    });
 
-   return await utils.getData(req, OBJECT_IDS.BALANCE, cond);
+   // return await utils.getData(req, OBJECT_IDS.BALANCE, cond);
+   const objBalance = AB.objectByID(OBJECT_IDS.BALANCE).model();
+   return objBalance.findAll(cond);
 }
 
 module.exports = {
@@ -185,7 +187,8 @@ module.exports = {
       // Check QX Role of the user
       let RCs = [];
       if (isCoreUser) {
-         RCs = RCs.concat(await GetRC(req, OBJECT_IDS.RC, {
+         const objRCs = AB.objectByID(OBJECT_IDS.RC).model();
+         RCs = RCs.concat(await objRCs.findAll({
             populate: false,
             where: {
                glue: "and",
@@ -252,7 +255,7 @@ module.exports = {
       ];
 
       const balances = await GetBalances(
-         req,
+         AB,
          null,
          viewData.fyPeriod || viewData.fyOptions[0],
          rules
