@@ -258,7 +258,7 @@ class TeamRcFyOptions {
             where: {
                 glue: "or",
                 rules: teamList
-                    .filter((teamName) =>teamName)
+                    .filter((teamName) => teamName)
                     .map((teamName) => {
                         return {
                             key: ids.ministryNameFieldId,
