@@ -27,6 +27,7 @@ class TeamRcFyOptions {
             monthObjId: "1d63c6ac-011a-4ffd-ae15-97e5e43f2b3f",
             mccFieldId: "eb0f60c3-55cf-40b1-8408-64501f41fa71",
             fiscalFieldId: "e696e49e-651e-4eee-960a-095b2b1f7720",
+            ministryNameFieldId: "f8ee19c3-554c-4354-8cff-63310a1d9ae0",
 
             startViewId: `${dom_id}_start`,
             endViewId: `${dom_id}_end`,
@@ -254,6 +255,18 @@ class TeamRcFyOptions {
 
         const rcs = await myRCsModel.findAll({
             populate: false,
+            where: {
+                glue: "or",
+                rules: teamList
+                    .filter((teamName) => teamName)
+                    .map((teamName) => {
+                        return {
+                            key: ids.ministryNameFieldId,
+                            rule: "equals",
+                            value: teamName,
+                        }
+                    }),
+            },
         });
         $$(this._webixId).__mccRcs = ((rcs && rcs.data) || []).map((item) => {
             return {
