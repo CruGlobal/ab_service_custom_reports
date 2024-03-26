@@ -10,6 +10,7 @@ class TeamRcFyOptions {
         // {
         //      includeEnd: BOOLEAN,
         //      includeMCC: BOOLEAN,
+        //      allRC: BOOLEAN,
         // }
         this._options = options;
     }
@@ -24,8 +25,11 @@ class TeamRcFyOptions {
             myRCsQueryId: "241a977c-7748-420d-9dcb-eff53e66a43f",
             myRCsTeamFieldId: "ae4ace97-f70c-4132-8fa0-1a0b1a9c7859",
             allTeamObjId: "138ff828-4579-412b-8b5b-98542d7aa152",
+            allRcObjId: "c3aae079-d36d-489f-ae1e-a6289536cb1a",
             monthObjId: "1d63c6ac-011a-4ffd-ae15-97e5e43f2b3f",
-            mccFieldId: "eb0f60c3-55cf-40b1-8408-64501f41fa71",
+            mccObjId: "cdd5e9ca-fed6-4fab-ace8-925b58d592e4",
+            mccNameFieldId: "eb0f60c3-55cf-40b1-8408-64501f41fa71",
+            mccCodeFieldId: "f9992485-00ad-48c1-a9d6-c870915bfc78",
             fiscalFieldId: "e696e49e-651e-4eee-960a-095b2b1f7720",
             ministryNameFieldId: "f8ee19c3-554c-4354-8cff-63310a1d9ae0",
 
@@ -244,39 +248,21 @@ class TeamRcFyOptions {
         $rc.showProgress({ type: "icon" });
 
         const Teams = $$(ids.teamViewId).getValue();
-        const myRCs = AB.queryByID(ids.myRCsQueryId);
-        const myRCsModel = myRCs.model();
-        const mccField = myRCs.fieldByID(ids.mccFieldId);
         const teamList = [];
 
         (Teams || "").split(",").forEach((team) => {
             teamList.push(team);
         });
 
-        const rcs = await myRCsModel.findAll({
-            populate: false,
-            where: {
-                glue: "or",
-                rules: teamList
-                    .filter((teamName) => teamName)
-                    .map((teamName) => {
-                        return {
-                            key: ids.ministryNameFieldId,
-                            rule: "equals",
-                            value: teamName,
-                        }
-                    }),
-            },
-        });
-        $$(this._webixId).__mccRcs = ((rcs && rcs.data) || []).map((item) => {
-            return {
-                rc: item["BASE_OBJECT.RC Name"],
-                mcc: item[mccField.columnName],
-            };
-        });
+        let rcs;
+        if (this._options.allRC)
+            rcs = await this._pullAllRC(teamList);
+        else 
+            rcs = await this._pullMyRC(teamList);
 
-        this._defineOptions(ids.mccViewId, rcs.data || [], mccField.columnName);
-        this._defineOptions(ids.rcViewId, $$(this._webixId).__mccRcs, "rc");
+        $$(this._webixId).__mccRcs = rcs;
+        this._defineOptions(ids.mccViewId, rcs ?? [], "mcc");
+        this._defineOptions(ids.rcViewId, rcs ?? [], "rc");
 
         $rc.unblockEvent();
         $rc.hideProgress();
@@ -302,6 +288,68 @@ class TeamRcFyOptions {
                 };
             })
         );
+    }
+
+    async _pullMyRC(teams = []) {
+        const ids = this.ids;
+        const myRCs = AB.queryByID(ids.myRCsQueryId);
+        const myRCsModel = myRCs.model();
+        const mccField = myRCs.fieldByID(ids.mccNameFieldId);
+
+        const result = await myRCsModel.findAll({
+            populate: false,
+            where: {
+                glue: "or",
+                rules: teams
+                    .filter((teamName) => teamName)
+                    .map((teamName) => {
+                        return {
+                            key: ids.ministryNameFieldId,
+                            rule: "equals",
+                            value: teamName,
+                        }
+                    }),
+            },
+        });
+
+        return (result?.data ?? []).map((item) => {
+            return {
+                rc: item["BASE_OBJECT.RC Name"],
+                mcc: item[mccField.columnName],
+            };
+        });
+    }
+
+    async _pullAllRC(teams = []) {
+        const ids = this.ids;
+        const rcObj = AB.objectByID(ids.allRcObjId);
+        const rcModel = rcObj.model();
+        const mccObj = AB.objectByID(ids.mccObjId);
+        const mccCodeField = rcObj.fieldByID(ids.mccCodeFieldId);
+        const mccNameField = mccObj.fieldByID(ids.mccNameFieldId);
+
+        const result = await rcModel.findAll({
+            populate: [mccCodeField.columnName],
+            where: {
+                glue: "or",
+                rules: teams
+                    .filter((teamName) => teamName)
+                    .map((teamName) => {
+                        return {
+                            key: ids.myRCsTeamFieldId,
+                            rule: "equals",
+                            value: teamName,
+                        }
+                    }),
+            },
+        });
+
+        return (result?.data ?? []).map((item) => {
+            return {
+                rc: item["RC Name"],
+                mcc: item[mccCodeField.relationName()]?.[mccNameField.columnName],
+            };
+        });
     }
 
     _sort(a, b) {
