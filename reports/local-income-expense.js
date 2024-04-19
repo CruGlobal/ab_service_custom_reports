@@ -173,6 +173,13 @@ module.exports = {
          rules: [],
       };
 
+      // Remove all RCs start with "01 : 100" in this report
+      where.rules.push({
+         key: "RC Code",
+         rule: "not_contains",
+         value: "01 : 100",
+      });
+
       // Select specified RCs
       if (RCs) {
          const rcCond = {
