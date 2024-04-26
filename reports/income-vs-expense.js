@@ -13,6 +13,26 @@ function valueFormat(number) {
    return number.toLocaleString("en-US", { minimumFractionDigits: 2 });
 }
 
+function getPreviousFY(fyPeriod) {
+   let Y = fyPeriod?.split(" ")[0]?.replace("FY", "");
+   let M = fyPeriod?.split(" ")[1]?.replace("M", "");
+
+   if (Y == null || M == null) return;
+
+   Y = parseInt(Y);
+   M = parseInt(M);
+
+   if (M == 1) {
+      Y -= 1;
+      M = 12;
+   }
+   else {
+      M -= 1;
+   }
+
+   return `FY${Y} M${M < 10 ? `0${M}` : M}`;
+}
+
 module.exports = {
    // GET: /report/local-income-expense
    // get the local and expense income and calculate the sums
@@ -31,7 +51,7 @@ module.exports = {
       /* should start with mcc code.
       */
 
-      let mccs = [
+      const mccs = [
          { code: "01", label: "Staff" },
          { code: "02", label: "SLM" },
          { code: "03", label: "Digital Strategies" },
@@ -51,48 +71,50 @@ module.exports = {
      */
 
       function calculateGroupSums(...groups) {
-         // var t1 = new Date();
-
-         // console.log("groups ----->", groups);
          let sums = [];
-         // console.log("mccs ----->", mccs);
-         // console.log("balances ------>", balances);
          for (let m = 0; m < mccs.length; m++) {
             let sum = 0;
             for (let b = 0; b < balances.length; b++) {
+               const balance = balances[b];
                let inGroup = false;
                let isExpense = false;
                for (let g = 0; g < groups.length; g++) {
                   if (
-                     balances[b]["COA Num"] &&
-                     accountInCategory(balances[b]["COA Num"], groups[g])
+                     balance["COA Num"] &&
+                     accountInCategory(balance["COA Num"], groups[g])
                   ) {
                      inGroup = true;
                   }
                   // check if item is expense so we can subtract from sum later
                   if (
-                     balances[b]["COA Num"] &&
-                     accountInCategory(balances[b]["COA Num"], 95)
+                     balance["COA Num"] &&
+                     accountInCategory(balance["COA Num"], 95)
                   ) {
                      isExpense = true;
                   }
                }
-               // console.log("inGroup", inGroup);
+
                if (
                   inGroup &&
-                  balances[b]["Running Balance"] &&
-                  balances[b]["RCCode__relation"] &&
-                  balances[b]["RCCode__relation"]["MCCcode"] == mccs[m].code
+                  balance["Running Balance"] &&
+                  balance["RCCode__relation"]?.["MCCcode"] == mccs[m].code
                ) {
+                  // For advance question:
+                  // Why need to multiply 100, then divide 100 ?
+                  // I don't know. Just copy it.
+                  const sumx100 = 100 * sum;
+                  let runningBalance = 100 * balance["Running Balance"];
+
+                  if (balance["FY Period"] == fyperstart)
+                     runningBalance *= -1;
+
                   if (isExpense) {
-                     sum =
-                        (100 * sum - 100 * balances[b]["Running Balance"]) /
-                        100;
+                     sum = sumx100 - runningBalance;
                   } else {
-                     sum =
-                        (100 * sum + 100 * balances[b]["Running Balance"]) /
-                        100;
+                     sum = sumx100 + runningBalance;
                   }
+
+                  sum = sum / 100;
                }
             }
             sums.push(sum);
@@ -102,10 +124,7 @@ module.exports = {
             totalSum = (100 * sums[s] + 100 * totalSum) / 100;
          }
          sums.push(totalSum);
-         // var t2 = new Date();
-         // var dif = (t2.getTime() - t1.getTime()) / 1000;
-         // console.log("groups ----->", groups);
-         // console.log("Time to run calculations: ", dif);
+
          return sums;
       }
 
@@ -132,7 +151,7 @@ module.exports = {
 
       const fiscalMonthObj = AB.objectByID(ids.fiscalMonthID).model();
 
-      let fiscalMonthsArray = await fiscalMonthObj // .modelAPI()
+      let fiscalMonthsArray = await fiscalMonthObj
          .find({
             where: {
                glue: "or",
@@ -161,48 +180,17 @@ module.exports = {
             limit: 12,
          });
 
-      // data.fyper = fyper || fiscalMonthsArray[0]["FY Per"];
-
-      // // Set default FY period when .fyper value is invalid
-      // if (
-      //    !(fiscalMonthsArray || []).filter((fp) => fp["FY Per"] == data.fyper)
-      //       .length
-      // ) {
-      //    data.fyper = fiscalMonthsArray[0]["FY Per"];
-      // }
-
-      // let fyperOptions = [];
-      // let i = 0;
-      // let currIndex = 0;
-      // fiscalMonthsArray.forEach((fp) => {
-      //    var dateObj = new Date(fp["End"]);
-      //    var month = dateObj.getUTCMonth() + 1; //months from 1-12
-      //    var year = dateObj.getUTCFullYear();
-      //    var prettyDate = year + "/" + (month > 9 ? month : "0" + month);
-      //    var option = { id: fp["FY Per"], label: prettyDate };
-      //    if (fyper == fp["FY Per"]) {
-      //       option.selected = true;
-      //       currIndex = i;
-      //    }
-      //    fyperOptions.push(option);
-      //    i++;
-      // });
       data.fyperOptions = fiscalMonthsArray.map((fp) => fp["FY Per"]);
-      // var dateObj = new Date(fiscalMonthsArray[currIndex]["End"]);
-      // var month = dateObj.getUTCMonth() + 1; //months from 1-12
-      // var year = dateObj.getUTCFullYear();
-      // data.fyperend = year + "/" + (month > 9 ? month : "0" + month);
       data.fyperstart = fyperstart;
       data.fyperend = fyperend;
-      // let startYear = year;
-      // if (month < 7) {
-      //    startYear = year - 1;
-      // }
-      // data.fyperstart = startYear + "/07";
 
-      let balanceObj = AB.objectByID(ids.balanceID).model();
+      // Pull previous FY period to calculate
+      // https://github.com/digi-serve/ns_app/issues/452
+      if (fyperstart)
+         fyperstart = getPreviousFY(fyperstart);
 
-      if (data.fyperstart || data.fyperend) {
+      if (data.fyperend) {
+         const balanceObj = AB.objectByID(ids.balanceID).model();
          balances = await balanceObj.findAll(
             {
                where: {
@@ -495,13 +483,14 @@ module.exports = {
       data.netTotals = netTotals;
       let balSheetTotal = 0;
       for (let b = 0; b < balances.length; b++) {
-         if (
-            balances[b]["COA Num"] &&
-            balances[b]["COA Num"].toString() == "3991"
-         ) {
-            balSheetTotal =
-               (100 * balances[b]["Running Balance"] + 100 * balSheetTotal) /
-               100;
+         const balance = balances[b];
+         if (balance?.["COA Num"].toString() == "3991") {
+            let runningBalance = balance["Running Balance"] * 100;
+
+            if (balance["FY Period"] == fyperstart)
+               runningBalance *= -1;
+
+            balSheetTotal = (balSheetTotal * 100 + runningBalance) / 100;
          }
       }
       data.balSheetTotal = balSheetTotal;
