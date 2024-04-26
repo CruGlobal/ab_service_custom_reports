@@ -11,6 +11,7 @@ class TeamRcFyOptions {
         //      includeEnd: BOOLEAN,
         //      includeMCC: BOOLEAN,
         //      allRC: BOOLEAN,
+        //      filterRC: OBJECT,
         // }
         this._options = options;
     }
@@ -256,9 +257,9 @@ class TeamRcFyOptions {
 
         let rcs;
         if (this._options.allRC)
-            rcs = await this._pullAllRC(teamList);
+            rcs = await this._pullAllRC(teamList, this._options.filterRC);
         else 
-            rcs = await this._pullMyRC(teamList);
+            rcs = await this._pullMyRC(teamList, this._options.filterRC);
 
         $$(this._webixId).__mccRcs = rcs;
         this._defineOptions(ids.mccViewId, rcs ?? [], "mcc");
@@ -290,26 +291,36 @@ class TeamRcFyOptions {
         );
     }
 
-    async _pullMyRC(teams = []) {
+    async _pullMyRC(teams = [], filter = null) {
         const ids = this.ids;
         const myRCs = AB.queryByID(ids.myRCsQueryId);
         const myRCsModel = myRCs.model();
         const mccField = myRCs.fieldByID(ids.mccNameFieldId);
+        const where = {
+            glue: "and",
+            rules: [
+                {
+                    glue: "or",
+                    rules: teams
+                        .filter((teamName) => teamName)
+                        .map((teamName) => {
+                            return {
+                                key: ids.ministryNameFieldId,
+                                rule: "equals",
+                                value: teamName,
+                            }
+                        }),
+                },
+            ],
+        };
+
+        if (filter) {
+            where.rules.push(filter);
+        }
 
         const result = await myRCsModel.findAll({
             populate: false,
-            where: {
-                glue: "or",
-                rules: teams
-                    .filter((teamName) => teamName)
-                    .map((teamName) => {
-                        return {
-                            key: ids.ministryNameFieldId,
-                            rule: "equals",
-                            value: teamName,
-                        }
-                    }),
-            },
+            where,
         });
 
         return (result?.data ?? []).map((item) => {
@@ -320,28 +331,37 @@ class TeamRcFyOptions {
         });
     }
 
-    async _pullAllRC(teams = []) {
+    async _pullAllRC(teams = [], filter = null) {
         const ids = this.ids;
         const rcObj = AB.objectByID(ids.allRcObjId);
         const rcModel = rcObj.model();
         const mccObj = AB.objectByID(ids.mccObjId);
         const mccCodeField = rcObj.fieldByID(ids.mccCodeFieldId);
         const mccNameField = mccObj.fieldByID(ids.mccNameFieldId);
+        const where = {
+            glue: "and",
+            rules: [
+                {
+                    glue: "or",
+                    rules: teams
+                        .filter((teamName) => teamName)
+                        .map((teamName) => {
+                            return {
+                                key: ids.myRCsTeamFieldId,
+                                rule: "equals",
+                                value: teamName,
+                            }
+                        }),
+                }
+            ],
+        };
+
+        if (filter)
+            where.rules.push(filter);
 
         const result = await rcModel.findAll({
             populate: [mccCodeField.columnName],
-            where: {
-                glue: "or",
-                rules: teams
-                    .filter((teamName) => teamName)
-                    .map((teamName) => {
-                        return {
-                            key: ids.myRCsTeamFieldId,
-                            rule: "equals",
-                            value: teamName,
-                        }
-                    }),
-            },
+            where,
         });
 
         return (result?.data ?? []).map((item) => {
