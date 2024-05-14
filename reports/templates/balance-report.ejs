@@ -15,10 +15,13 @@
             <%- include('/app/reports/scripts/_loading-cursor.js') %>
             showLoadingBar("balance-report-frame", "balance-report-loading");
 
-            let mccVal = document.getElementById("mcc").value;
-            let rcVal = document.getElementById("rcType").value || "team";
-            let fyVal = document.getElementById("fySelect").value;
-            window.location.href = `/report/balance-report?mcc=${mccVal}&rc=${rcVal}&fyper=${fyVal}`;
+            const rcVal = document.getElementById("rcType").value || "team";
+            const fyVal = document.getElementById("fySelect").value;
+            const teamVal = document.getElementById("team").value;
+            const qxVal = document.getElementById("qx").value;
+            const mccVal = document.getElementById("mcc").value;
+
+            window.location.href = `/report/balance-report?rc=${rcVal}&fyper=${fyVal}&team=${teamVal}&qx=${qxVal}&mcc=${mccVal}`;
         }
     </script>
     <center>
@@ -34,6 +37,40 @@
                 <option value="qx" <% if (rcType=="qx" ) { %> selected <% } %>>My QX</option>
             </select>
             <span style="font-weight: normal;">
+                FY Period:
+            </span>
+            <select class="selector" id="fySelect" onchange="refresh()">
+                <% for(var i=0; i < fyOptions.length; i++) { %>
+                    <option <% if (fyPeriod==fyOptions[i]) { %> selected <% } %> value="<%= fyOptions[i] %>"><%=
+                                    fyOptions[i] %>
+                    </option>
+                    <% } %>
+            </select>
+        </h2>
+        <h2>
+            <span style="font-weight: normal;">
+                Team:
+            </span>
+            <select class="selector" id="team" onchange="refresh()">
+                <option value="">[All]</option>
+                <% for(var i=0; i < teamOptions.length; i++) { %>
+                    <option <% if (team==teamOptions[i]) { %> selected <% } %> value="<%= teamOptions[i] %>"><%=
+                        teamOptions[i] %>
+                    </option>
+                    <% } %>
+            </select>
+            <span style="font-weight: normal;">
+                QX:
+            </span>
+            <select class="selector" id="qx" onchange="refresh()">
+                <option value="">[All]</option>
+                <% for(var i=0; i < qxOptions.length; i++) { %>
+                    <option <% if (qx==qxOptions[i]) { %> selected <% } %> value="<%= qxOptions[i] %>"><%=
+                        qxOptions[i] %>
+                    </option>
+                    <% } %>
+            </select>
+            <span style="font-weight: normal;">
                 MCC:
             </span>
             <select class="selector" id="mcc" onchange="refresh()">
@@ -41,16 +78,6 @@
                 <% for(var i=0; i < mccOptions.length; i++) { %>
                     <option <% if (mcc==mccOptions[i].id) { %> selected <% } %> value="<%= mccOptions[i].id %>">
                                 <%=mccOptions[i].name %>
-                    </option>
-                    <% } %>
-            </select>
-            <span style="font-weight: normal;">
-                FY Period:
-            </span>
-            <select class="selector" id="fySelect" onchange="refresh()">
-                <% for(var i=0; i < fyOptions.length; i++) { %>
-                    <option <% if (fyPeriod==fyOptions[i]) { %> selected <% } %> value="<%= fyOptions[i] %>"><%=
-                                    fyOptions[i] %>
                     </option>
                     <% } %>
             </select>
