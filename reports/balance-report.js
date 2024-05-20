@@ -15,6 +15,7 @@ const QUERY_IDS = {
    MyMinistryTeams: "62a0c464-1e67-4cfb-9592-a7c5ed9db45c",
    MyTeamRC: "241a977c-7748-420d-9dcb-eff53e66a43f",
    MyQXRC: "2e3e423b-fcec-4221-9a9c-7a670fbba65e",
+   MyQX: "ee0c1ac3-7391-4dd5-8d2e-83da121db100",
 };
 
 const FIELDS_IDS = {
@@ -78,7 +79,7 @@ async function GetTeams(AB, req, isCoreUser) {
 
 async function GetQXs(AB, req, isCoreUser) {
    const allQXs = AB.objectByID(OBJECT_IDS.QX).model();
-   const myQXs = AB.queryByID(QUERY_IDS.MyQXRC).model();
+   const myQXs = AB.queryByID(QUERY_IDS.MyQX).model();
 
    return (isCoreUser ?
       await allQXs.findAll(
