@@ -1,6 +1,6 @@
 {
    "name": "custom_reports",
-   "version": "1.0.71+p10300",
+   "version": "1.0.72+p10301.c20200",
    "description": "A cool micro service.",
    "main": "app.js",
    "author": "Coding Monkey",
