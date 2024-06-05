@@ -43,14 +43,18 @@ module.exports = {
          fiscalMonthID: "1d63c6ac-011a-4ffd-ae15-97e5e43f2b3f",
       };
 
-      let balances = [];
       /**
       /* @const balances
       /* aka GL Segments. Should be filtered by the fiscal period the report is based on.
       /* mcc_code: balance link to rc, rc link to mcc, mcc has a code. The rc code should
       /* should start with mcc code.
       */
+      let balances = [];
 
+      /**
+      /* @const mccs
+      /* Can read from the MCC object
+      */
       const mccs = [
          { code: "01", label: "Staff" },
          { code: "02", label: "SLM" },
@@ -65,10 +69,6 @@ module.exports = {
          { code: "11", label: "Other" },
          { code: "12", label: "None" },
       ];
-      /**
-      /* @const mccs
-      /* Can read from the MCC object
-     */
 
       function calculateGroupSums(...groups) {
          let sums = [];
@@ -79,18 +79,15 @@ module.exports = {
                let inGroup = false;
                let isExpense = false;
                for (let g = 0; g < groups.length; g++) {
-                  if (
-                     balance["COA Num"] &&
-                     accountInCategory(balance["COA Num"], groups[g])
-                  ) {
+                  if (!balance["COA Num"]) continue;
+
+                  if (accountInCategory(balance["COA Num"], groups[g])) {
                      inGroup = true;
-                  }
-                  // check if item is expense so we can subtract from sum later
-                  if (
-                     balance["COA Num"] &&
-                     accountInCategory(balance["COA Num"], 95)
-                  ) {
-                     isExpense = true;
+
+                     // check if item is expense so we can subtract from sum later
+                     if (accountInCategory(balance["COA Num"], 95)) {
+                        isExpense = true;
+                     }
                   }
                }
 
@@ -99,9 +96,6 @@ module.exports = {
                   balance["Running Balance"] &&
                   balance["RCCode__relation"]?.["MCCcode"] == mccs[m].code
                ) {
-                  // For advance question:
-                  // Why need to multiply 100, then divide 100 ?
-                  // I don't know. Just copy it.
                   const sumx100 = 100 * sum;
                   let runningBalance = 100 * balance["Running Balance"];
 
@@ -136,15 +130,16 @@ module.exports = {
       /* @return {bool}
      */
       function accountInCategory(account, category) {
-         const accountDigits = account.toString().split("");
-         const categoryDigits = category.toString().split("");
-         let match = true;
-         categoryDigits.forEach((digit, i) => {
-            if (digit !== accountDigits[i]) {
-               match = false;
-            }
-         });
-         return match;
+         return (account ?? "").toString().startsWith(category);
+         // const accountDigits = account.toString().split("");
+         // const categoryDigits = category.toString().split("");
+         // let match = true;
+         // categoryDigits.forEach((digit, i) => {
+         //    if (digit !== accountDigits[i]) {
+         //       match = false;
+         //    }
+         // });
+         // return match;
       }
 
       var data = {};
@@ -186,8 +181,8 @@ module.exports = {
 
       // Pull previous FY period to calculate
       // https://github.com/digi-serve/ns_app/issues/452
-      if (fyperstart)
-         fyperstart = getPreviousFY(fyperstart);
+      // if (fyperstart)
+      //    fyperstart = getPreviousFY(fyperstart);
 
       if (data.fyperend) {
          const balanceObj = AB.objectByID(ids.balanceID).model();
@@ -221,6 +216,13 @@ module.exports = {
             AB.req
          );
       }
+
+      // Calculate Net Income Values
+      let incomeReceivedTotals = calculateGroupSums(4, 5);
+      let incomeTransferTotals = calculateGroupSums(6);
+      // let expenseTotals = calculateGroupSums(6, 7, 8, 9);
+      let expenseTotals = calculateGroupSums(7, 8);
+      let internalTransferTotals = calculateGroupSums(9);
 
       data.mccs = mccs;
       data.fnValueFormat = valueFormat;
@@ -312,7 +314,7 @@ module.exports = {
                zh: "总收入",
             },
             account: "4000 & 5000",
-            sums: calculateGroupSums(4, 5),
+            sums: incomeReceivedTotals,
          },
          {
             label: {
@@ -324,7 +326,7 @@ module.exports = {
                zh: "转给其他3C的总支出",
             },
             account: "6000",
-            sums: calculateGroupSums(6),
+            sums: incomeTransferTotals,
             subGroups: [
                {
                   label: {
@@ -354,7 +356,7 @@ module.exports = {
                zh: "总支出费用",
             },
             account: "7000 & 8000",
-            sums: calculateGroupSums(7, 8),
+            sums: expenseTotals,
             subGroups: [
                {
                   label: {
@@ -440,7 +442,7 @@ module.exports = {
                zh: "内部转账总费用",
             },
             account: "9000",
-            sums: calculateGroupSums(9),
+            sums: internalTransferTotals,
             subGroups: [
                {
                   label: {
@@ -461,13 +463,6 @@ module.exports = {
             ],
          },
       ];
-
-      // Calculate Net Income Values
-      let incomeReceivedTotals = calculateGroupSums(4, 5);
-      let incomeTransferTotals = calculateGroupSums(6);
-      // let expenseTotals = calculateGroupSums(6, 7, 8, 9);
-      let expenseTotals = calculateGroupSums(7, 8);
-      let internalTransferTotals = calculateGroupSums(9);
 
       let netTotals = [];
       for (let i = 0; i < incomeReceivedTotals.length; i++) {
