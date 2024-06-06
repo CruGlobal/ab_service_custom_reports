@@ -181,8 +181,8 @@ module.exports = {
 
       // Pull previous FY period to calculate
       // https://github.com/digi-serve/ns_app/issues/452
-      // if (fyperstart)
-      //    fyperstart = getPreviousFY(fyperstart);
+      if (fyperstart)
+         fyperstart = getPreviousFY(fyperstart);
 
       if (data.fyperend) {
          const balanceObj = AB.objectByID(ids.balanceID).model();
@@ -198,10 +198,10 @@ module.exports = {
                      //    rule: "equals",
                      //    value: rc,
                      // },
-                     data.fyperstart ? {
+                     fyperstart ? {
                         key: "FY Period",
                         rule: "equals",
-                        value: data.fyperstart,
+                        value: fyperstart,
                      } : null,
                      data.fyperend ? {
                         key: "FY Period",
