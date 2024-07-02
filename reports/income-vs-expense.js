@@ -6,12 +6,7 @@
 
 const path = require("path");
 const fs = require("fs");
-
-function valueFormat(number) {
-   if (number == null) return;
-
-   return number.toLocaleString("en-US", { minimumFractionDigits: 2 });
-}
+const utils = require("./_utils");
 
 function getPreviousFY(fyPeriod) {
    let Y = fyPeriod?.split(" ")[0]?.replace("FY", "");
@@ -225,7 +220,7 @@ module.exports = {
       let internalTransferTotals = calculateGroupSums(9);
 
       data.mccs = mccs;
-      data.fnValueFormat = valueFormat;
+      data.fnValueFormat = utils.valueFormat;
       data.numberOfColumns = mccs.length + 2;
       data.accountGroups = [
          {

@@ -109,9 +109,14 @@
                      <td align="right">Expense/Budget %</td>
                   </tr>
                   <% for(const project_number in rc) { %>
-                     <% if (project_number == "total_budget_amount" || project_number == "total_actual_expense") continue; %>
-                     <% const project_info=rc[project_number]; %>
-                        <tr>
+                     <% if (project_number == "total_budget_amount" || project_number == "total_actual_expense") continue;
+                        const project_info=rc[project_number];
+                        const expenseNbudget = project_info.actual_expense && project_info.budget_amount ? (project_info.actual_expense / project_info.budget_amount) * 100 : 0;
+                        let rowClass = "";
+                        if (expenseNbudget > 100) rowClass = "red-highlight";
+                        else if (expenseNbudget < 20) rowClass = "yellow-highlight";
+                         %>
+                        <tr class="<%= rowClass %>">
                            <td>
                               <%= project_number %>
                            </td>
@@ -125,8 +130,7 @@
                               <%= fnValueFormat(project_info.actual_expense) %>
                            </td>
                            <td align="right">
-                              <%= fnValueFormat(project_info.actual_expense && project_info.budget_amount ?
-                                 (project_info.actual_expense/project_info.budget_amount) * 100 : 0) %> %
+                              <%= fnValueFormat(expenseNbudget) %> %
                            </td>
                         </tr>
                         <% } %>
