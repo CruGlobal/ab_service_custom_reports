@@ -3,7 +3,7 @@ module.exports = {
       if (number == null) return;
       else if (!number.toLocaleString) number = parseFloat(number);
 
-      return number.toLocaleString("en-US", { minimumFractionDigits: 2 });
+      return number.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
    },
 
    getData: async (req, objectID, cond = {}) => {
