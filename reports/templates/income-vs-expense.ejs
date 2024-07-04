@@ -87,8 +87,8 @@
    <select id="fyperstart" class="option" onchange="refresh()">
       <option>[Select]</option>
       <% for(var i=0; i < fyperOptions.length; i++) { %>
-         <option <% if (fyperstart==fyperOptions[i]) { %> selected <% } %> value="<%= fyperOptions[i] %>"><%=
-            fyperOptions[i] %>
+         <option <% if (fyperstart==fyperOptions[i].value) { %> selected <% } %> value="<%= fyperOptions[i].value %>"><%=
+            fyperOptions[i].label %>
          </option>
          <% } %>
    </select>
@@ -98,8 +98,8 @@
    <select id="fyperend" class="option" onchange="refresh()">
       <option>[Select]</option>
       <% for(var i=0; i < fyperOptions.length; i++) { %>
-         <option <% if (fyperend==fyperOptions[i]) { %> selected <% } %> value="<%= fyperOptions[i] %>"><%=
-            fyperOptions[i] %>
+         <option <% if (fyperend==fyperOptions[i].value) { %> selected <% } %> value="<%= fyperOptions[i].value %>"><%=
+            fyperOptions[i].label %>
          </option>
          <% } %>
    </select>
