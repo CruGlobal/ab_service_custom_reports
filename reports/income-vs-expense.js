@@ -43,7 +43,7 @@ module.exports = {
       data.fyperend = fyperend;
 
       // If start option is FY M01, then it should read data from end FY
-      if (fyperstart.indexOf("M01") > -1)
+      if (fyperstart?.indexOf("M01") > -1)
          fyperstart = null;
 
       /**
