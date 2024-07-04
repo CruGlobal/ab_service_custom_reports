@@ -38,6 +38,7 @@ module.exports = {
          fiscalMonthID: "1d63c6ac-011a-4ffd-ae15-97e5e43f2b3f",
       };
 
+      const data = {};
       data.fyperstart = fyperstart;
       data.fyperend = fyperend;
 
@@ -143,8 +144,6 @@ module.exports = {
          // });
          // return match;
       }
-
-      var data = {};
 
       const fiscalMonthObj = AB.objectByID(ids.fiscalMonthID).model();
 
