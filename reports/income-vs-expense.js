@@ -38,6 +38,13 @@ module.exports = {
          fiscalMonthID: "1d63c6ac-011a-4ffd-ae15-97e5e43f2b3f",
       };
 
+      data.fyperstart = fyperstart;
+      data.fyperend = fyperend;
+
+      // If start option is FY M01, then it should read data from end FY
+      if (fyperstart.indexOf("M01") > -1)
+         fyperstart = null;
+
       /**
       /* @const balances
       /* aka GL Segments. Should be filtered by the fiscal period the report is based on.
@@ -171,8 +178,6 @@ module.exports = {
          });
 
       data.fyperOptions = fiscalMonthsArray.map((fp) => fp["FY Per"]);
-      data.fyperstart = fyperstart;
-      data.fyperend = fyperend;
 
       // Pull previous FY period to calculate
       // https://github.com/digi-serve/ns_app/issues/452
