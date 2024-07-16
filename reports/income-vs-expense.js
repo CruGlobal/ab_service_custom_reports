@@ -176,7 +176,13 @@ module.exports = {
             limit: 12,
          });
 
-      data.fyperOptions = fiscalMonthsArray.map((fp) => fp["FY Per"]);
+      data.fyperOptions = fiscalMonthsArray.map((fp) => {
+         const fyPeriod = fp["FY Per"];
+         return {
+            value: fyPeriod,
+            label: `${fyPeriod} - [${utils.convertFYtoDate(fyPeriod)}]`
+         }
+      });
 
       // Pull previous FY period to calculate
       // https://github.com/digi-serve/ns_app/issues/452

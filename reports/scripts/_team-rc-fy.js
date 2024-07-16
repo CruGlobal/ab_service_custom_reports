@@ -77,7 +77,7 @@ class TeamRcFyOptions {
                                     placeholder: "[Select]",
                                     label: "FY Period:",
                                     labelWidth: 80,
-                                    width: 210,
+                                    width: 280,
                                     options: [],
                                 },
                                 this._options.includeEnd ?
@@ -87,7 +87,7 @@ class TeamRcFyOptions {
                                     placeholder: "[Select]",
                                     label: " - ",
                                     labelWidth: 20,
-                                    width: 150,
+                                    width: 280,
                                     options: [],
                                 } : {},
                                 { fillspace: true },
@@ -222,8 +222,8 @@ class TeamRcFyOptions {
             }),
         ]);
 
-        this._defineOptions(ids.startViewId, (months && months.data) || [], "FY Per", false);
-        this._defineOptions(ids.endViewId, (months && months.data) || [], "FY Per", false);
+        this._defineOptions(ids.startViewId, (months && months.data) || [], "FY Per", false, this._options.customOptionLabel);
+        this._defineOptions(ids.endViewId, (months && months.data) || [], "FY Per", false, this._options.customOptionLabel);
         this._defineOptions(
             ids.teamViewId,
             (teams && teams.data) || [],
@@ -270,7 +270,7 @@ class TeamRcFyOptions {
         $rc.enable();
     };
 
-    _defineOptions(webixId, list, propertyName, isSorted = true) {
+    _defineOptions(webixId, list, propertyName, isSorted = true, fnCustomLabel = null) {
         if (!$$(webixId)) return;
 
         let options = list
@@ -285,7 +285,7 @@ class TeamRcFyOptions {
             options.map((opt) => {
                 return {
                     id: opt,
-                    value: opt,
+                    value: fnCustomLabel ? `${opt} - [${fnCustomLabel(opt)}]` : opt,
                 };
             })
         );

@@ -296,6 +296,7 @@ module.exports = {
             zh: "团队月度收支报告",
          },
          fnValueFormat: utils.valueFormat,
+         fnConvertFYtoDate: utils.convertFYtoDate,
          rcs: {},
       };
 

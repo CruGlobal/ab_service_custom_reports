@@ -10,6 +10,7 @@ const optInstance = new TeamRcFyOptions(title, domId, frameId, {
       rule: "not_contains",
       value: "01 : 100",
    },
+   customOptionLabel: <%- convertFYtoDate %>,
 });
 optInstance.generateUI();
 optInstance.getURL = ({ team, rc, start, end }) =>

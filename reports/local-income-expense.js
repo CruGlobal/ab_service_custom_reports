@@ -5,6 +5,7 @@
  */
 const fs = require("fs");
 const path = require("path");
+const utils = require("./_utils");
 
 module.exports = {
    // GET: /report/local-income-expense
@@ -134,6 +135,7 @@ module.exports = {
                ],
             },
          ],
+         convertFYtoDate: utils.convertFYtoDate,
       };
 
       function accountInCategory(account, category) {
