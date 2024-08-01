@@ -102,7 +102,7 @@ module.exports = {
                   const sumx100 = 100 * sum;
                   let runningBalance = 100 * balance["Running Balance"];
 
-                  if (balance["FY Period"] == fyperstart)
+                  if (fyperstart && balance["FY Period"] == fyperstart)
                      runningBalance *= -1;
 
                   if (isExpense) {
@@ -173,7 +173,7 @@ module.exports = {
                   dir: "DESC",
                },
             ],
-            limit: 12,
+            limit: 15,
          });
 
       data.fyperOptions = fiscalMonthsArray.map((fp) => {
@@ -487,7 +487,7 @@ module.exports = {
          if (balance?.["COA Num"].toString() == "3991") {
             let runningBalance = balance["Running Balance"] * 100;
 
-            if (balance["FY Period"] == fyperstart)
+            if (fyperstart && balance["FY Period"] == fyperstart)
                runningBalance *= -1;
 
             balSheetTotal = (balSheetTotal * 100 + runningBalance) / 100;
