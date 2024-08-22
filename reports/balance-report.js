@@ -321,6 +321,10 @@ module.exports = {
       // Render UI
       // Calculate Sum
       (balances || []).forEach((gl) => {
+         // Only RC is active
+         const rcActive = gl?.["RCCode__relation"]?.Active;
+         if (rcActive != true && rcActive != 1) return;
+
          rcHash[gl["RC Code"]] =
             rcHash[gl["RC Code"]] == null ? 0 : rcHash[gl["RC Code"]];
 
