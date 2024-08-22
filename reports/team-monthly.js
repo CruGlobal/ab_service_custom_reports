@@ -21,6 +21,7 @@ const OBJECT_IDS = {
 const FIELD_IDS = {
    FY_MONTH_STATUS: "224a0662-ebcb-4469-9d3c-92458a56a069",
    FY_MONTH_END: "49d6fabe-46b1-4306-be61-1b27764c3b1a",
+   BALANCE_ACTIVE: "99b2ad4d-5da7-4b65-9d12-a526fc8c593d",
    BALANCE_FYPeriod: "549ab4ac-f436-461d-9777-505d6dc1d4f7",
    BALANCE_RCCode: "7cdadcef-70a1-408a-b4b9-fdbf3c261d2b",
    JE_ARCHIVE_BAL_ID: "1b67bcfb-d9c6-47ce-bb78-8d689e12b3e9",
@@ -34,6 +35,15 @@ const ROLE_IDS = {
 
 async function _getRC(AB, req, teams) {
    const isCoreUser = (req._user?.SITE_ROLE ?? []).filter((r) => (r.uuid ?? r) == ROLE_IDS.CORE_Finance).length > 0;
+   const cond = {
+      glue: "and",
+      rules: [{
+         // RC is active only
+         key: FIELD_IDS.BALANCE_ACTIVE,
+         rule: "checked",
+      }],
+   };
+
    const teamCond = {
       glue: "or",
       rules: [],
@@ -48,13 +58,16 @@ async function _getRC(AB, req, teams) {
       });
    });
 
+   if (teamCond.rules.length)
+      cond.rules.push(teamCond);
+
    const allRCs = AB.objectByID(OBJECT_IDS.RC).model();
    const myRCs = AB.queryByID(QUERY_IDS.MY_RCs).model();
    const rcsModel = isCoreUser ? allRCs : myRCs;
 
    const result = (await rcsModel.findAll(
       {
-         where: teamCond,
+         where: cond,
          populate: false,
       },
       { username: req._user.username },

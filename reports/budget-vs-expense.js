@@ -40,6 +40,7 @@ const FIELD_IDS = {
    MCC_Name: "eb0f60c3-55cf-40b1-8408-64501f41fa71",
 
    RC_MCC_Name: "f9992485-00ad-48c1-a9d6-c870915bfc78",
+   RC_Active: "99b2ad4d-5da7-4b65-9d12-a526fc8c593d",
 };
 
 const ROLE_IDS = {
@@ -69,6 +70,8 @@ const FilterOutRC = [
    "02 : Q1BJ-2013Bangladesh MT",
 ];
 
+let inactiveRCs = [];
+
 function sort(a, b) {
    return (a ?? "").toString().toLowerCase().localeCompare((b ?? "").toString().toLowerCase());
 }
@@ -83,6 +86,11 @@ async function getProjectBudgets(modelProjectBudget, teams, rcs, year) {
             key: FIELD_IDS.BUDGET_RC,
             rule: "not_in",
             value: FilterOutRC,
+         },
+         {
+            key: FIELD_IDS.BUDGET_RC,
+            rule: "not_in",
+            value: inactiveRCs,
          },
          {
             key: FIELD_IDS.BUDGET_TOTAL_EXPENSE,
@@ -261,7 +269,7 @@ module.exports = {
       const isCoreUser = (req._user?.SITE_ROLE ?? []).filter((r) => (r.uuid ?? r) == ROLE_IDS.CORE_FINANCE).length > 0;
 
       // Load Data
-      const [teamsArray, rcs, yearArray] = await Promise.all([
+      const [teamsArray, rcs, yearArray, inactiveRCarray] = await Promise.all([
          // Return teams
          isCoreUser ?
          allTeams.findAll(
@@ -311,7 +319,25 @@ module.exports = {
             { username: req._user.username },
             AB.req
          ),
+         allRCs.findAll(
+            {
+               populate: false,
+               where: {
+                  glue: "and",
+                  rules: [
+                     {
+                        key: FIELD_IDS.RC_Active,
+                        rule: "unchecked",
+                     },
+                  ],
+               },
+            },
+            { username: req._user.username },
+            AB.req
+         )
       ]);
+
+      inactiveRCs = (inactiveRCarray ?? []).map((rc) => rc["RC Name"]);
 
       const selectedRcs = rcs
             .filter((r) => (!rc && !mcc) || (r["BASE_OBJECT.RC Name"] ?? r["RC Name"]) == rc || (r[`${mccField.alias}.${mccField.columnName}`] ?? r[rcMccField.columnName]) == mcc)
