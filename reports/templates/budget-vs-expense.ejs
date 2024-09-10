@@ -133,6 +133,41 @@
                               <%= fnValueFormat(expenseNbudget) %> %
                            </td>
                         </tr>
+                        <!-- Expense Info -->
+                        <tr>
+                           <table style="display: none;">
+                              <tr>
+                                 <th>Date</th>
+                                 <th>Account</th>
+                                 <th>Ministry</th>
+                                 <th>Credit</th>
+                                 <th>Debit</th>
+                                 <th>Actual Expense</th>
+                              </tr>
+                              <% for(const expense_info of expense_infos[project_number]) { %>
+                                 <tr>
+                                    <td>
+                                       <%= expense_info["date"] %>
+                                    </td>
+                                    <td>
+                                       <%= expense_info["account"] %>
+                                    </td>
+                                    <td>
+                                       <%= expense_info["ministry"] %>
+                                    </td>
+                                    <td>
+                                       <%= expense_info["credit"] %>
+                                    </td>
+                                    <td>
+                                       <%= expense_info["debit"] %>
+                                    </td>
+                                    <td>
+                                       <%= expense_info["actual_expense"] %>
+                                    </td>
+                                 </tr>
+                              <% } %>
+                           </table>
+                        </tr>
                         <% } %>
                            <!-- Footer -->
                            <tr class="sub header">
