@@ -33,6 +33,8 @@ const FIELD_IDS = {
    EXPENSE_CREDIT: "513a31b1-1f1c-487d-b65d-f87764d8aa38",
    EXPENSE_DEBIT: "c73c6da9-fa40-40c0-98aa-a045b2d870dc",
 
+   JEArchive_DATE: "acc290cb-6f5f-4e64-9d88-7ee047462ca7",
+
    PROJECT_NUMBER: "3bb80108-b29b-4141-a84e-646bcbab98bf",
    PROJECT_NAME: "3adf1639-fbaf-44f9-9249-d2800506642c",
 
@@ -230,7 +232,7 @@ async function getActualExpense(modelTeamJEArchive, teams, rcs, year) {
       sort: [
          { key: FIELD_IDS.EXPENSE_RC, dir: "ASC" },
          { key: FIELD_IDS.PROJECT_NUMBER, dir: "ASC" },
-         // TODO DATE
+         { key: FIELD_IDS.JEArchive_DATE, dir: "ASC" },
       ],
       populate: false,
    });
@@ -464,7 +466,7 @@ module.exports = {
          data.expense_infos[Project_Number].push({
             account: e[`${fieldAccount.alias}.${fieldAccount.columnName}`],
             ministry: e[`${fieldMinistryName.alias}.${fieldMinistryName.columnName}`],
-            date: e["BASE_OBJECT.Date"],
+            date: AB.rules.toDateFormat(e["BASE_OBJECT.Date"], { format: "DD/MM/yyyy" }),
             credit: e["BASE_OBJECT.Credit"] ?? 0,
             debit: e["BASE_OBJECT.Debit"] ?? 0,
             actual_expense: ACTUAL_EXPENSE,
