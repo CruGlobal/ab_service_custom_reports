@@ -9,6 +9,22 @@
          color: gray;
          border: 1px solid #CCC;
       }
+      
+      .project-item {
+         cursor: pointer;
+      }
+
+      .expense-info-container.hidden {
+         display: none;
+      }
+
+      .expense-info-panel {
+         padding: 0 80px;
+      }
+
+      table.expense-info {
+         width: 100%;
+      }
    </style>
 
    <script type="text/javascript">
@@ -19,6 +35,13 @@
             yearVal = document.getElementById("yearSelect").value;
 
          location.href = `/report/budget-vs-expense?team=${teamVal}&mcc=${mccVal}&rc=${rcVal}&fyYear=${yearVal}`;
+      }
+
+      function toggleExpenseInfo(projectItem) {
+         if (!projectItem) return;
+
+         const expenseContainer = projectItem.parentElement.querySelector(".expense-info-container");
+         if (expenseContainer) expenseContainer.classList.toggle('hidden');
       }
    </script>
    <center>
@@ -116,11 +139,11 @@
                         if (expenseNbudget > 100) rowClass = "red-highlight";
                         else if (expenseNbudget < 20) rowClass = "yellow-highlight";
                          %>
-                        <tr class="<%= rowClass %>">
-                           <td>
+                        <tr data-project="<%= project_number %>" onclick="toggleExpenseInfo(this)" class="project-item <%= rowClass %>">
+                           <td align="left">
                               <%= project_number %>
                            </td>
-                           <td>
+                           <td align="left">
                               <%= project_info.project_name %>
                            </td>
                            <td align="right">
@@ -133,22 +156,55 @@
                               <%= fnValueFormat(expenseNbudget) %> %
                            </td>
                         </tr>
-                        <% } %>
-                           <!-- Footer -->
-                           <tr class="sub header">
-                              <td colspan="2">Total</td>
-                              <td align="right">
-                                 <%= fnValueFormat(rc.total_budget_amount) %>
-                              </td>
-                              <td align="right">
-                                 <%= fnValueFormat(rc.total_actual_expense) %>
-                              </td>
-                              <td align="right">
-                                 <%= fnValueFormat(rc.total_budget_amount && rc.total_actual_expense ?
-                                    (rc.total_actual_expense/rc.total_budget_amount) * 100 : 0) %> %
-                              </td>
-                           </tr>
-                           <% } %>
+                        <!-- Expense Info -->
+                        <tr data-project="<%= project_number %>" class="expense-info-container hidden">
+                           <td colspan="5" class="expense-info-panel">
+                              <table class="expense-info">
+                                 <tr>
+                                    <th align="left">Date</th>
+                                    <th align="left">Account</th>
+                                    <th align="left">Ministry</th>
+                                    <th align="right">Credit</th>
+                                    <th align="right">Debit</th>
+                                 </tr>
+                                 <% for(const expense_info of expense_infos[project_number]) { %>
+                                    <tr>
+                                       <td>
+                                          <%= expense_info["date"] %>
+                                       </td>
+                                       <td>
+                                          <%= expense_info["account"] %>
+                                       </td>
+                                       <td>
+                                          <%= expense_info["ministry"] %>
+                                       </td>
+                                       <td align="right">
+                                          <%= fnValueFormat(expense_info["credit"]) %>
+                                       </td>
+                                       <td align="right">
+                                          <%= fnValueFormat(expense_info["debit"]) %>
+                                       </td>
+                                    </tr>
+                                 <% } %>
+                              </table>
+                           </td>
+                        </tr>
+                        <!-- Footer -->
+                        <tr class="sub header">
+                           <td colspan="2">Total</td>
+                           <td align="right">
+                              <%= fnValueFormat(rc.total_budget_amount) %>
+                           </td>
+                           <td align="right">
+                              <%= fnValueFormat(rc.total_actual_expense) %>
+                           </td>
+                           <td align="right">
+                              <%= fnValueFormat(rc.total_budget_amount && rc.total_actual_expense ?
+                                 (rc.total_actual_expense/rc.total_budget_amount) * 100 : 0) %> %
+                           </td>
+                        </tr>
+                     <% } %>
+                  <% } %>
          </table>
       </div>
    </center>
