@@ -167,7 +167,7 @@
                                     <th align="right">Credit</th>
                                     <th align="right">Debit</th>
                                  </tr>
-                                 <% for(const expense_info of expense_infos[project_number]) { %>
+                                 <% for(const expense_info of (expense_infos[project_number] ?? [])) { %>
                                     <tr>
                                        <td>
                                           <%= expense_info["date"] %>
