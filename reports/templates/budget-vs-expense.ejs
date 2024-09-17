@@ -14,7 +14,7 @@
          cursor: pointer;
       }
 
-      .expense-info-container.hidden {
+      .expense-info-container.hidden, .expense-info-loading.hidden {
          display: none;
       }
 
@@ -46,6 +46,7 @@
          // If data is loaded, then skip
          if (!expenseTable || expenseTable.querySelectorAll("tr > td").length) return;
 
+         expenseTable.innerHTML += `<tr class="expense-info-loading"><td align="center" colspan="4">Loading...</td></tr>`;
 
          const projectNumber = projectItem.dataset.project;
          const urlReportItems = `/app_builder/model/24b61551-3be3-4681-ac72-c1b9d8c89f96?where={"glue":"and","rules":[{"glue":"and","rules":[{"key":"2af2633b-5764-41b6-a672-ba2c7ac8e34f","rule":"contains","value":"${projectNumber}"}]}]}&sort=[{"key":"21240723-78c9-4f56-94f9-319f0af428cc","dir":"asc"}]&populate=["Report"]`;
@@ -53,6 +54,10 @@
          fetch(urlReportItems)
             .then(async response => {
                const res = (await response.json()).data;
+
+               // hide Loading...
+               expenseTable.querySelector(".expense-info-loading")?.classList.add("hidden");
+
                const objExpenseReport = parent.AB.objectByID("51499402-cd4e-410e-82f5-8ab6729adf50");
 
                res.data.forEach((item) => {
