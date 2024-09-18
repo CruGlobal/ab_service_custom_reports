@@ -39,8 +39,9 @@
 
       function toggleExpenseInfo(projectItem) {
          if (!projectItem) return;
+         const projectNumber = projectItem.dataset.project;
 
-         const expenseContainer = projectItem.parentElement.querySelector(".expense-info-container");
+         const expenseContainer = projectItem.parentElement.querySelector(`.expense-info-container[data-project='${projectNumber}']`);
          if (expenseContainer) expenseContainer.classList.toggle('hidden');
          const expenseTable = expenseContainer.querySelector(".expense-info");
          // If data is loaded, then skip
@@ -48,7 +49,6 @@
 
          expenseTable.innerHTML += `<tr class="expense-info-loading"><td align="center" colspan="4">Loading...</td></tr>`;
 
-         const projectNumber = projectItem.dataset.project;
          const urlReportItems = `/app_builder/model/24b61551-3be3-4681-ac72-c1b9d8c89f96?where={"glue":"and","rules":[{"glue":"and","rules":[{"key":"2af2633b-5764-41b6-a672-ba2c7ac8e34f","rule":"contains","value":"${projectNumber}"}]}]}&sort=[{"key":"21240723-78c9-4f56-94f9-319f0af428cc","dir":"asc"}]&populate=["Report"]`;
 
          fetch(urlReportItems)
