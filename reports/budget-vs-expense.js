@@ -426,6 +426,18 @@ module.exports = {
       const fieldProjectNumber = queryTeamJEArchive.fieldByID(FIELD_IDS.PROJECT_NUMBER);
       const fieldProjectName = queryTeamJEArchive.fieldByID(FIELD_IDS.PROJECT_NAME);
 
+      // {
+      //    project_number: [
+      //       {
+      //          date: "",
+      //          description: "",
+      //          credit: 0,
+      //          debit: 0,
+      //       },
+      //    ]
+      // }
+      data.expense_infos ={};
+
       expenses.forEach((e) => {
          const RC = e[`${fieldRC.alias}.${fieldRC.columnName}`];
          const Project_Number = e[`${fieldProjectNumber.alias}.${fieldProjectNumber.columnName}`];
@@ -446,6 +458,14 @@ module.exports = {
          data.rc_infos[RC][Project_Number].actual_expense += ACTUAL_EXPENSE;
          data.rc_infos[RC].total_actual_expense += ACTUAL_EXPENSE;
          data.totalActualExpense += ACTUAL_EXPENSE;
+
+         data.expense_infos[Project_Number] = data.expense_infos[Project_Number] ?? [];
+         data.expense_infos[Project_Number].push({
+            date: AB.rules.toDateFormat(e["BASE_OBJECT.Date"], { format: "DD/MM/yyyy" }),
+            description: e["BASE_OBJECT.Description"],
+            credit: e["BASE_OBJECT.Credit"] ?? 0,
+            debit: e["BASE_OBJECT.Debit"] ?? 0,
+         });
       });
 
       data.percentExpenseBudget = data.totalBudgetAmount && data.totalActualExpense ? (data.totalActualExpense / data.totalBudgetAmount) * 100 : 0;

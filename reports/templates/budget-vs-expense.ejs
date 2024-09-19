@@ -39,39 +39,10 @@
 
       function toggleExpenseInfo(projectItem) {
          if (!projectItem) return;
+
          const projectNumber = projectItem.dataset.project;
-
          const expenseContainer = projectItem.parentElement.querySelector(`.expense-info-container[data-project='${projectNumber}']`);
-         if (expenseContainer) expenseContainer.classList.toggle('hidden');
-         const expenseTable = expenseContainer.querySelector(".expense-info");
-         // If data is loaded, then skip
-         if (!expenseTable || expenseTable.querySelectorAll("tr > td").length) return;
-
-         expenseTable.innerHTML += `<tr class="expense-info-loading"><td align="center" colspan="4">Loading...</td></tr>`;
-
-         const urlReportItems = `/app_builder/model/24b61551-3be3-4681-ac72-c1b9d8c89f96?where={"glue":"and","rules":[{"glue":"and","rules":[{"key":"2af2633b-5764-41b6-a672-ba2c7ac8e34f","rule":"contains","value":"${projectNumber}"}]}]}&sort=[{"key":"21240723-78c9-4f56-94f9-319f0af428cc","dir":"asc"}]&populate=["Report"]`;
-
-         fetch(urlReportItems)
-            .then(async response => {
-               const res = (await response.json()).data;
-
-               // hide Loading...
-               expenseTable.querySelector(".expense-info-loading")?.classList.add("hidden");
-
-               const objExpenseReport = parent.AB.objectByID("51499402-cd4e-410e-82f5-8ab6729adf50");
-
-               res.data.forEach((item) => {
-                  const expenseReport = objExpenseReport.displayData(item["Report__relation"]);
-                  const dateString = parent.AB.rules.toDateFormat(item.Date, { format: "MM/DD/yyyy" });
-                  expenseTable.innerHTML += `
-                     <tr>
-                        <td align="left">${expenseReport}</td>
-                        <td align="left">${item.Description}</td>
-                        <td align="left">${dateString}</td>
-                        <td align="right">${item.Amount}</td>
-                     </tr>`;
-               });
-            });
+         expenseContainer?.classList.toggle('hidden');
       }
    </script>
    <center>
@@ -191,11 +162,27 @@
                            <td colspan="5" class="expense-info-panel">
                               <table class="expense-info">
                                  <tr>
-                                    <th align="left">Expense Report</th>
-                                    <th align="left">Description</th>
                                     <th align="left">Date</th>
-                                    <th align="right">Amount</th>
+                                    <th align="left">Description</th>
+                                    <th align="left">Credit</th>
+                                    <th align="right">Debit</th>
                                  </tr>
+                                 <% for(const expense_info of (expense_infos[project_number] ?? [])) { %>
+                                    <tr>
+                                       <td>
+                                          <%= expense_info["date"] %>
+                                       </td>
+                                       <td>
+                                          <%= expense_info["description"] %>
+                                       </td>
+                                       <td align="right">
+                                          <%= fnValueFormat(expense_info["credit"]) %>
+                                       </td>
+                                       <td align="right">
+                                          <%= fnValueFormat(expense_info["debit"]) %>
+                                       </td>
+                                    </tr>
+                                 <% } %>
                               </table>
                            </td>
                         </tr>
