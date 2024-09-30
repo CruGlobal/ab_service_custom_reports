@@ -170,6 +170,9 @@ class TeamRcFyOptions {
         });
         if ($end) {
             $end.__onChange = $end.attachEvent("onChange", () => {
+                startVal = $start.getValue();
+                endVal = $end?.getValue();
+    
                 if (startVal && endVal) this.refresh();
             });
         }
