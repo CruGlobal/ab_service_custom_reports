@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 module.exports = {
-   prepareData: async (AB, { input }) => {
+   prepareData: async (AB) => {
       // Object Ids
       const ids = {
          persons: "82df020c-695d-4360-8112-567a2f664569",
@@ -217,7 +217,7 @@ module.exports = {
             );
             //console.log("visa6MonthReport: ", visa6MonthReport);
          }
-         for (const [key, value] of Object.entries(dueDates)) {
+         for (const [key] of Object.entries(dueDates)) {
             //console.log("birthday");
             if (birthday) {
                storeDueDate(
