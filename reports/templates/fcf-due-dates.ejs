@@ -1,0 +1,96 @@
+<style>
+@media print {
+}
+div {
+   font-family: Helvetica, sans-serif;
+   font-size: 11pt;
+}
+.page {
+   column-count: 3;
+   column-fill: auto;
+   column-gap: 0;
+   column-span: all;
+   column-width: auto;
+   column-rule: 1px solid gray;
+}
+.month {
+   font-size: 16pt;
+   padding: 5px;
+   color: gray;
+   text-align: center;
+   border-bottom: 1px solid gray;
+   border-top: 1px solid gray;
+   margin-top: -1px;
+}
+.record {
+   display: flex;
+   break-inside: avoid;
+}
+.record div {
+   padding: 5px;
+}
+.date {
+   width: 20px;
+   text-align: center;
+}
+.type {
+   width: 60px;
+}
+.workPermitExipry {
+   background: mediumaquamarine;
+}
+.visaExpiryDependent {
+   background: indianred;
+}
+.visaExpiry {
+   background: mediumpurple;
+}
+.visaConsideration {
+   background: cornflowerblue;
+}
+.visaRecommendation {
+   background: darksalmon;
+}
+.visa6MonthReport {
+   background: palevioletred;
+}
+</style>
+
+<div class="page">
+   <% for (const [year, yearData] of Object.entries(dueDates)) { %>
+      <% for (const [month, monthData] of Object.entries(yearData)) { %>
+         <div class="month"><%= month %> <%= year %></div>
+         <% for (const [date, dateData] of Object.entries(monthData)) { %>
+            <% for (const [dueDateType, dueDateData] of Object.entries(dateData)) { %>
+                  <% dueDateData.forEach(dueDate => { %>
+                     <div class="<%= dueDateType %> record">
+                        <div class="date"><%= date %></div> 
+                        <% if (dueDateType == "birthday") { %> 
+                           <div class="type">Birth</div>
+                        <% } %> 
+                        <% if (dueDateType == "workPermitExipry") { %> 
+                           <div class="type">WP</div>
+                        <% } %> 
+                        <% if (dueDateType == "visaExpiry") { %> 
+                           <div class="type">Visa</div> 
+                        <% } %> 
+                        <% if (dueDateType == "visaExpiryDependent") { %> 
+                           <div class="type">vDep</div> 
+                        <% } %> 
+                        <% if (dueDateType == "visaConsideration") { %> 
+                           <div class="type">Consid</div>
+                        <% } %> 
+                        <% if (dueDateType == "visaRecommendation") { %> 
+                           <div class="type">Recom</div>
+                        <% } %> 
+                        <% if (dueDateType == "visa6MonthReport") { %> 
+                            <div class="type">6 Month</div>
+                        <% } %> 
+                        <div class="person"><%= dueDate %></div>
+                     </div>
+                  <% }); %>
+            <% } %>
+         <% } %>
+      <% } %>
+   <% } %>
+</div>
