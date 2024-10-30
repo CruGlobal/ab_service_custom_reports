@@ -119,21 +119,24 @@ module.exports = {
       // loop through person object to get important dates
       for (const person of personsArray) {
          //console.log("person: ", person);
-         let visaDetails = await visasObj.find({
-            where: {
-               glue: "and",
-               rules: [
-                  // Active
-                  {
-                     key: "uuid",
-                     rule: "equals",
-                     value: person["Person__relation"].uuid,
-                  },
-               ],
-            },
-            populate: true,
-            limit: 1,
-         });
+         let visaDetails;
+         if (person["Person__relation"]) {
+            visaDetails = await visasObj.find({
+               where: {
+                  glue: "and",
+                  rules: [
+                     // Active
+                     {
+                        key: "uuid",
+                        rule: "equals",
+                        value: person["Person__relation"].uuid,
+                     },
+                  ],
+               },
+               populate: true,
+               limit: 1,
+            });
+         }
          //console.log("visaDetails: ", JSON.stringify(visaDetails));
          let birthday,
             visaExpiry,
