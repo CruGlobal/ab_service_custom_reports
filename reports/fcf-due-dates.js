@@ -31,7 +31,7 @@ module.exports = {
          //       dir: "DESC",
          //    },
          // ],
-         limit: 100,
+         limit: 1000,
       });
 
       // generate object that has current month and following 11 months
