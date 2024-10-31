@@ -161,6 +161,7 @@ module.exports = {
          }
          // get visa information
          if (
+            visaDetails &&
             visaDetails[0] &&
             visaDetails[0]["ExpiryDateofExtension__relation"] &&
             visaDetails[0]["ExpiryDateofExtension__relation"][0] &&
@@ -176,6 +177,7 @@ module.exports = {
             //console.log("visaExpiry: ", visaExpiry);
          }
          if (
+            visaDetails &&
             visaDetails[0] &&
             visaDetails[0]["ExpiryDateofExtension__relation"] &&
             visaDetails[0]["ExpiryDateofExtension__relation"][0] &&
@@ -191,6 +193,7 @@ module.exports = {
             //console.log("visaConsideration: ", visaConsideration);
          }
          if (
+            visaDetails &&
             visaDetails[0] &&
             visaDetails[0]["ExpiryDateofExtension__relation"] &&
             visaDetails[0]["ExpiryDateofExtension__relation"][0] &&
@@ -206,6 +209,7 @@ module.exports = {
             //console.log("visaRecommendation: ", visaRecommendation);
          }
          if (
+            visaDetails &&
             visaDetails[0] &&
             visaDetails[0]["ExpiryDateofExtension__relation"] &&
             visaDetails[0]["ExpiryDateofExtension__relation"][0] &&
