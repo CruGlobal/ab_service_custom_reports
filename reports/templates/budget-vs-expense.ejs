@@ -186,21 +186,21 @@
                               </table>
                            </td>
                         </tr>
-                        <!-- Footer -->
-                        <tr class="sub header">
-                           <td colspan="2">Total</td>
-                           <td align="right">
-                              <%= fnValueFormat(rc.total_budget_amount) %>
-                           </td>
-                           <td align="right">
-                              <%= fnValueFormat(rc.total_actual_expense) %>
-                           </td>
-                           <td align="right">
-                              <%= fnValueFormat(rc.total_budget_amount && rc.total_actual_expense ?
-                                 (rc.total_actual_expense/rc.total_budget_amount) * 100 : 0) %> %
-                           </td>
-                        </tr>
                      <% } %>
+                     <!-- Footer -->
+                     <tr class="sub header">
+                        <td colspan="2">Total</td>
+                        <td align="right">
+                           <%= fnValueFormat(rc.total_budget_amount) %>
+                        </td>
+                        <td align="right">
+                           <%= fnValueFormat(rc.total_actual_expense) %>
+                        </td>
+                        <td align="right">
+                           <%= fnValueFormat(rc.total_budget_amount && rc.total_actual_expense ?
+                              (rc.total_actual_expense/rc.total_budget_amount) * 100 : 0) %> %
+                        </td>
+                     </tr>
                   <% } %>
          </table>
       </div>
