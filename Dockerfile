@@ -6,8 +6,8 @@
 ##
 ## Docker Commands:
 ## ---------------
-## $ docker build -t digiserve/custom_reports:develop .
-## $ docker push digiserve/custom_reports:develop
+## $ docker build -t digiserve/ab-custom-reports:develop .
+## $ docker push digiserve/ab-custom-reports:develop
 ##
 
 ARG BRANCH=master
