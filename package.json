@@ -6,13 +6,13 @@
    "author": "Coding Monkey",
    "license": "MIT",
    "dependencies": {
-      "@digiserve/ab-utils": "^1.9.1",
-      "cote": "^1.0.2",
+      "@digiserve/ab-utils": "github:CruGlobal/ab-utils#1.10.2",
+      "cote": "^1.2.0",
       "ejs": "^3.1.10",
-      "knex": "^0.95.15",
+      "knex": "^2.4.0",
       "lodash": "^4.17.21",
-      "moment": "^2.29.3",
-      "objection": "^2.2.18",
+      "moment": "^2.29.1",
+      "objection": "^3.1.5",
       "semver": "^7.7.3",
       "xml-js": "^1.6.11"
    },
@@ -30,15 +30,19 @@
       "submoduleNPMInstall": "cd AppBuilder && npm i --force"
    },
    "devDependencies": {
-      "chai": "^4.3.4",
-      "eslint": "^7.22.0",
-      "eslint-config-prettier": "^8.1.0",
-      "eslint-plugin-prettier": "^3.3.1",
-      "husky": "^5.1.3",
-      "mocha": "^10.0.0",
-      "nodemon": "^2.0.7",
+      "chai": "^4.3.7",
+      "eslint": "^9.26.0",
+      "eslint-config-prettier": "^10.1.8",
+      "eslint-plugin-prettier": "^5.4.0",
+      "mocha": "^10.4.0",
+      "nodemon": "^3.1.11",
       "npm-run-all": "^4.1.5",
-      "prettier": "^2.1.2",
-      "run-script-os": "^1.1.5"
+      "prettier": "^3.0.0",
+      "run-script-os": "^1.1.5",
+      "@eslint/js": "^9.15.0",
+      "globals": "^16.0.0"
+   },
+   "overrides": {
+      "@opentelemetry/api": "^1.7.0"
    }
 }
