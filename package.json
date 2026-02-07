@@ -18,7 +18,7 @@
    },
    "scripts": {
       "test": "run-p lint custom-tests",
-      "lint": "eslint . --max-warnings=0 --report-unused-disable-directives && echo '✔  Your .js files look good.'",
+      "lint": "eslint . --fix --max-warnings=0 --report-unused-disable-directives && echo '✔  Your .js files look good.'",
       "custom-tests": "make test",
       "dev": "node_modules/.bin/nodemon --inspect=0.0.0.0:9229 app.js",
       "devBuild": "run-script-os",
