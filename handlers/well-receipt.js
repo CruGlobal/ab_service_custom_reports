@@ -96,7 +96,7 @@ module.exports = {
                __dirname,
                "..",
                "templates",
-               "well-receipt.ejs"
+               "well-receipt.ejs",
             );
 
             ejs.renderFile(templatePath, data, {}, (err, str) => {

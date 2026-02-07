@@ -7,13 +7,9 @@ var _ = require("lodash");
 var expect = require("chai").expect;
 
 // Base config value.
-var defaultConfig = require(path.join(
-   __dirname,
-   "..",
-   "..",
-   "config",
-   "custom_reports"
-));
+var defaultConfig = require(
+   path.join(__dirname, "..", "..", "config", "custom_reports"),
+);
 
 // Our service handler:
 var Handler = require(path.join(__dirname, "..", "..", "src", "handler"));

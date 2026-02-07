@@ -80,7 +80,7 @@ module.exports = {
    template: () => {
       return fs.readFileSync(
          path.join(__dirname, "templates", "well-session.ejs"),
-         "utf8"
+         "utf8",
       );
    },
 };

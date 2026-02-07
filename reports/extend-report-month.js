@@ -243,7 +243,7 @@ module.exports = {
 
       // Sort
       viewData.items = viewData.items.sort((a, b) =>
-         a.title.toLowerCase().localeCompare(b.title.toLowerCase())
+         a.title.toLowerCase().localeCompare(b.title.toLowerCase()),
       );
 
       return viewData;
@@ -252,7 +252,7 @@ module.exports = {
    template: () => {
       return fs.readFileSync(
          path.join(__dirname, "templates", "extend-report-month.ejs"),
-         "utf8"
+         "utf8",
       );
    },
 };

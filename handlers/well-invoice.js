@@ -88,16 +88,16 @@ module.exports = {
                   transaction.clients = [];
                   const session = await sessionModel.find({
                      where: {
-                        uuid: transaction.Session
+                        uuid: transaction.Session,
                      },
                      populate: true,
                   });
                   session[0]?.ClientsPresent__relation?.forEach?.((client) => {
                      transaction.clients.push(client["First Name"]);
                   });
-               })
+               }),
             );
-            
+
             const [logo] = await fileModel.find({ uuid: entity.Logo });
             // Data for template
             const data = {
@@ -113,7 +113,7 @@ module.exports = {
                __dirname,
                "..",
                "templates",
-               "well-invoice.ejs"
+               "well-invoice.ejs",
             );
 
             ejs.renderFile(templatePath, data, {}, (err, str) => {

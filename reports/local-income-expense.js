@@ -152,7 +152,7 @@ module.exports = {
 
       function categorySum(category, balances, propertyName) {
          const filtered = balances.filter((bal) =>
-            accountInCategory(bal["COA Num"], category)
+            accountInCategory(bal["COA Num"], category),
          );
          if (filtered.length > 0) {
             return filtered
@@ -163,7 +163,10 @@ module.exports = {
          }
       }
 
-      const isCoreUser = (req._user?.SITE_ROLE ?? []).filter((r) => (r.uuid ?? r) == ids.coreFinanceRoleId).length > 0;
+      const isCoreUser =
+         (req._user?.SITE_ROLE ?? []).filter(
+            (r) => (r.uuid ?? r) == ids.coreFinanceRoleId,
+         ).length > 0;
 
       const allRCs = AB.objectByID(ids.allRcObjId).model();
       const myRCs = AB.queryByID(ids.myRCsQueryId).model();
@@ -217,14 +220,16 @@ module.exports = {
          });
 
          const rcsModel = isCoreUser ? allRCs : myRCs;
-         const rcs = (await rcsModel.findAll(
-            {
-               where: teamCond,
-               populate: false,
-            },
-            { username: req._user.username },
-            AB.req
-         )).map((t) => isCoreUser ? t["RC Name"] : t["BASE_OBJECT.RC Name"]);
+         const rcs = (
+            await rcsModel.findAll(
+               {
+                  where: teamCond,
+                  populate: false,
+               },
+               { username: req._user.username },
+               AB.req,
+            )
+         ).map((t) => (isCoreUser ? t["RC Name"] : t["BASE_OBJECT.RC Name"]));
 
          if (rcs?.length) {
             where.rules.push({
@@ -248,7 +253,7 @@ module.exports = {
                key: "FY Period",
                rule: "contains",
                value: fyValues[1],
-            }
+            },
          ],
       };
       where.rules.push(fyConds);
@@ -261,18 +266,30 @@ module.exports = {
                populate: false,
             },
             { username: req._user.username },
-            AB.req
+            AB.req,
          );
       }
 
-      const running_records = records.filter((rec) => rec["FY Period"] == fyValues[1]);
-      const starting_records = records.filter((rec) => rec["FY Period"] == fyValues[0]);
+      const running_records = records.filter(
+         (rec) => rec["FY Period"] == fyValues[1],
+      );
+      const starting_records = records.filter(
+         (rec) => rec["FY Period"] == fyValues[0],
+      );
 
       data.categories.forEach((cat) => {
          let catSum = 0;
          cat.sub.forEach((sub) => {
-            let runningSum = categorySum(sub.id, running_records, "Running Balance");
-            let startingSum = categorySum(sub.id, starting_records, "Starting Balance");
+            let runningSum = categorySum(
+               sub.id,
+               running_records,
+               "Running Balance",
+            );
+            let startingSum = categorySum(
+               sub.id,
+               starting_records,
+               "Starting Balance",
+            );
             sub.sum = runningSum - startingSum;
 
             catSum = (100 * sub.sum + 100 * catSum) / 100;
@@ -300,7 +317,7 @@ module.exports = {
    template: () => {
       return fs.readFileSync(
          path.join(__dirname, "templates", "local-income-expense.ejs"),
-         "utf8"
+         "utf8",
       );
    },
 };

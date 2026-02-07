@@ -3,20 +3,23 @@ module.exports = {
       if (number == null) return;
       else if (!number.toLocaleString) number = parseFloat(number);
 
-      return number.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return number.toLocaleString("en-US", {
+         minimumFractionDigits: 2,
+         maximumFractionDigits: 2,
+      });
    },
 
    /**
-   * @function convertFYtoDate
-   * Convert FY period to the calendar date
-   * 
-   * @param {string} fyPeriod - FY## M##
-   * @returns 
-   */
-   convertFYtoDate: function(fyPeriod) {
+    * @function convertFYtoDate
+    * Convert FY period to the calendar date
+    *
+    * @param {string} fyPeriod - FY## M##
+    * @returns
+    */
+   convertFYtoDate: function (fyPeriod) {
       if (!fyPeriod) return;
 
-      const fyVals = fyPeriod.toString().split(' ');
+      const fyVals = fyPeriod.toString().split(" ");
       if (fyVals.length < 2) return;
 
       const fyYear = parseInt(fyVals[0].replace("FY", ""));
@@ -25,18 +28,15 @@ module.exports = {
       // Year
       let year = "20";
       if (fyMonth <= 6) {
-         year += (fyYear - 1);
-      }
-      else {
+         year += fyYear - 1;
+      } else {
          year += fyYear;
       }
 
       // Month
       let month = "";
-      if (fyMonth <= 6)
-         month = fyMonth + 6;
-      else
-         month = fyMonth - 6;
+      if (fyMonth <= 6) month = fyMonth + 6;
+      else month = fyMonth - 6;
 
       month = month.toString().length == 1 ? `0${month}` : month;
 

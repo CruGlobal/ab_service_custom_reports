@@ -288,7 +288,7 @@ module.exports = {
       let list = await GetBalances(
          AB,
          data.rc,
-         data.fyPeriod || data.fyOptions[0]
+         data.fyPeriod || data.fyOptions[0],
       );
 
       list.forEach((bl) => {
@@ -322,7 +322,7 @@ module.exports = {
    template: () => {
       return fs.readFileSync(
          path.join(__dirname, "templates", "balance-sheet.ejs"),
-         "utf8"
+         "utf8",
       );
    },
 };

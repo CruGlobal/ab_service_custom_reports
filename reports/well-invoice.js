@@ -8,7 +8,7 @@ module.exports = {
          transaction: "4a43ff1d-bbee-4d14-a4b4-a82c57c55b78",
          datefield: "bca053b6-bdae-4e00-ad4d-89f51397056e",
          siteFile: "4a9d89c9-f4eb-41af-91e4-909eff389f3e",
-         session: "d6b8ae02-92bc-474c-8309-8503ec025cbf"
+         session: "d6b8ae02-92bc-474c-8309-8503ec025cbf",
       };
       // Load Models
       const transactionsModel = AB.objectByID(ids.transaction).model();
@@ -21,10 +21,10 @@ module.exports = {
       const [transactions, [payee], [entity]] = await Promise.all([
          transactionsModel.find({
             where: { Transactions: payeeId },
-            sort: [{ key: ids.datefield, dir: "ASC" }]
+            sort: [{ key: ids.datefield, dir: "ASC" }],
          }),
          accountModel.find({ uuid: payeeId }),
-         enitityModel.findAll()
+         enitityModel.findAll(),
       ]);
 
       // Get session -> Clients Present -> First Name
@@ -33,14 +33,14 @@ module.exports = {
             transaction.clients = [];
             const session = await sessionModel.find({
                where: {
-                  uuid: transaction.Session
+                  uuid: transaction.Session,
                },
-               populate: true
+               populate: true,
             });
             session[0]?.ClientsPresent__relation?.forEach?.((client) => {
                transaction.clients.push(client["First Name"]);
             });
-         })
+         }),
       );
 
       const [logo] = await fileModel.find({ uuid: entity.Logo });
@@ -51,14 +51,14 @@ module.exports = {
          date: new Date().toDateString(),
          transactions,
          entity,
-         logo: logo?.pathFile
+         logo: logo?.pathFile,
       };
       return data;
    },
    template: () => {
       return fs.readFileSync(
          path.join(__dirname, "templates", "well-invoice.ejs"),
-         "utf8"
+         "utf8",
       );
-   }
+   },
 };

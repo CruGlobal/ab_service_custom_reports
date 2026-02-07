@@ -31,17 +31,22 @@ const FIELD_IDS = {
 
 const ROLE_IDS = {
    CORE_Finance: "e32dbd38-2300-4aac-84a9-d2c704bd2a29",
-}
+};
 
 async function _getRC(AB, req, teams) {
-   const isCoreUser = (req._user?.SITE_ROLE ?? []).filter((r) => (r.uuid ?? r) == ROLE_IDS.CORE_Finance).length > 0;
+   const isCoreUser =
+      (req._user?.SITE_ROLE ?? []).filter(
+         (r) => (r.uuid ?? r) == ROLE_IDS.CORE_Finance,
+      ).length > 0;
    const cond = {
       glue: "and",
-      rules: [{
-         // RC is active only
-         key: FIELD_IDS.BALANCE_ACTIVE,
-         rule: "checked",
-      }],
+      rules: [
+         {
+            // RC is active only
+            key: FIELD_IDS.BALANCE_ACTIVE,
+            rule: "checked",
+         },
+      ],
    };
 
    const teamCond = {
@@ -58,22 +63,23 @@ async function _getRC(AB, req, teams) {
       });
    });
 
-   if (teamCond.rules.length)
-      cond.rules.push(teamCond);
+   if (teamCond.rules.length) cond.rules.push(teamCond);
 
    const allRCs = AB.objectByID(OBJECT_IDS.RC).model();
    const myRCs = AB.queryByID(QUERY_IDS.MY_RCs).model();
    const rcsModel = isCoreUser ? allRCs : myRCs;
 
-   const result = (await rcsModel.findAll(
-      {
-         where: cond,
-         populate: false,
-      },
-      { username: req._user.username },
-      AB.req
-   ))
-      .map((t) => isCoreUser ? t["RC Name"] : t["BASE_OBJECT.RC Name"])
+   const result = (
+      await rcsModel.findAll(
+         {
+            where: cond,
+            populate: false,
+         },
+         { username: req._user.username },
+         AB.req,
+      )
+   )
+      .map((t) => (isCoreUser ? t["RC Name"] : t["BASE_OBJECT.RC Name"]))
       // Remove duplicated
       .filter(function (t, pos, self) {
          return t && self.indexOf(t) == pos;
@@ -116,13 +122,17 @@ async function getBalances(AB, req, teams, rcs, fyper) {
    });
 
    // Pull balances
-   const results = await objBalance.findAll({
-      where: {
-         glue: "and",
-         rules: rules,
+   const results = await objBalance.findAll(
+      {
+         where: {
+            glue: "and",
+            rules: rules,
+         },
+         populate: false,
       },
-      populate: false,
-   }, { username: req._user.username }, req);
+      { username: req._user.username },
+      req,
+   );
 
    return results;
 }
@@ -149,30 +159,32 @@ async function getJEarchive(AB, req, teams, rcs, fyper) {
                key: FIELD_IDS.JE_ARCHIVE_BAL_ID,
                rule: "contains",
                value: `${fyper}%${rc}`,
-            }
-         })
+            };
+         }),
       });
    }
 
    // Pull JE archive
    // NOTE: Prevent the performance issue. If no any filter condition, then it should not query data.
-   const results = rules?.length ? (await objJEarchive.findAll(
-      {
-         where: {
-            glue: "and",
-            rules: rules,
-         },
-         sort: [
-            {
-               key: FIELD_IDS.JE_ARCHIVE_DATE,
-               dir: "ASC",
-            },
-         ],
-         populate: false,
-      },
-      { username: req._user.username },
-      req
-   )) : [];
+   const results = rules?.length
+      ? await objJEarchive.findAll(
+           {
+              where: {
+                 glue: "and",
+                 rules: rules,
+              },
+              sort: [
+                 {
+                    key: FIELD_IDS.JE_ARCHIVE_DATE,
+                    dir: "ASC",
+                 },
+              ],
+              populate: false,
+           },
+           { username: req._user.username },
+           req,
+        )
+      : [];
 
    return results.map((item) => {
       return {
@@ -246,7 +258,8 @@ function calculateRCs(balances) {
 }
 
 function calculateRcDetail(AB, jeArchives, fyper, rcs = {}) {
-   const indexOfSpecificPos = (string, subString, pos) => string.split(subString, pos).join(subString).length;
+   const indexOfSpecificPos = (string, subString, pos) =>
+      string.split(subString, pos).join(subString).length;
 
    (jeArchives ?? []).forEach((jeArc) => {
       if (jeArc?.balId == null) return;
@@ -271,7 +284,9 @@ function calculateRcDetail(AB, jeArchives, fyper, rcs = {}) {
       };
 
       // Date format
-      jeArc._dateFormat = AB.rules.toDateFormat(jeArc.date, { format: "DD/MM/yyyy" });
+      jeArc._dateFormat = AB.rules.toDateFormat(jeArc.date, {
+         format: "DD/MM/yyyy",
+      });
 
       // Expense (6xxx, 7xxx, 8xxx)
       if (
@@ -313,16 +328,15 @@ module.exports = {
          rcs: {},
       };
 
-      const teamVals = (Teams ?? "").split(",").filter(t => t);
-      const rcVals = (RCs ?? "").split(",").filter(rc => rc);
+      const teamVals = (Teams ?? "").split(",").filter((t) => t);
+      const rcVals = (RCs ?? "").split(",").filter((rc) => rc);
 
       let balances = [];
       let jeArchives = [];
-      [balances, jeArchives] =
-         await Promise.all([
-            getBalances(AB, req, teamVals, rcVals, fyper),
-            getJEarchive(AB, req, teamVals, rcVals, fyper),
-         ]);
+      [balances, jeArchives] = await Promise.all([
+         getBalances(AB, req, teamVals, rcVals, fyper),
+         getJEarchive(AB, req, teamVals, rcVals, fyper),
+      ]);
 
       data.rcs = calculateRCs(balances);
 
@@ -335,7 +349,7 @@ module.exports = {
    template: () => {
       return fs.readFileSync(
          path.join(__dirname, "templates", "team-monthly.ejs"),
-         "utf8"
+         "utf8",
       );
    },
 };
