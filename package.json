@@ -1,6 +1,6 @@
 {
    "name": "custom_reports",
-   "version": "1.0.205+p11305",
+   "version": "1.1.0",
    "description": "A cool micro service.",
    "main": "app.js",
    "author": "Coding Monkey",
@@ -13,7 +13,7 @@
       "lodash": "^4.17.21",
       "moment": "^2.29.1",
       "objection": "^3.1.5",
-      "semver": "^7.7.3",
+      "semver": "^7.7.4",
       "xml-js": "^1.6.11"
    },
    "scripts": {
@@ -30,17 +30,17 @@
       "submoduleNPMInstall": "cd AppBuilder && npm i --force"
    },
    "devDependencies": {
+      "@eslint/js": "^9.15.0",
       "chai": "^4.3.7",
       "eslint": "^9.26.0",
       "eslint-config-prettier": "^10.1.8",
       "eslint-plugin-prettier": "^5.4.0",
+      "globals": "^16.0.0",
       "mocha": "^10.4.0",
       "nodemon": "^3.1.11",
       "npm-run-all": "^4.1.5",
       "prettier": "^3.0.0",
-      "run-script-os": "^1.1.5",
-      "@eslint/js": "^9.15.0",
-      "globals": "^16.0.0"
+      "run-script-os": "^1.1.5"
    },
    "overrides": {
       "@opentelemetry/api": "^1.7.0",
