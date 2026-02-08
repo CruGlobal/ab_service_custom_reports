@@ -47,7 +47,7 @@ const FIELD_IDS = {
 
 const ROLE_IDS = {
    CORE_FINANCE: "e32dbd38-2300-4aac-84a9-d2c704bd2a29",
-}
+};
 
 const FilterOutRC = [
    "06 : Q100-QX MT",
@@ -75,7 +75,10 @@ const FilterOutRC = [
 let inactiveRCs = [];
 
 function sort(a, b) {
-   return (a ?? "").toString().toLowerCase().localeCompare((b ?? "").toString().toLowerCase());
+   return (a ?? "")
+      .toString()
+      .toLowerCase()
+      .localeCompare((b ?? "").toString().toLowerCase());
 }
 
 async function getProjectBudgets(modelProjectBudget, teams, rcs, year) {
@@ -105,7 +108,7 @@ async function getProjectBudgets(modelProjectBudget, teams, rcs, year) {
    const teamCond = {
       glue: "or",
       rules: [],
-   }
+   };
    teams.forEach((team) => {
       teamCond.rules.push({
          key: FIELD_IDS.BUDGET_TEAM,
@@ -143,7 +146,7 @@ async function getProjectBudgets(modelProjectBudget, teams, rcs, year) {
       where: condProject,
       sort: [
          { key: FIELD_IDS.BUDGET_RC, dir: "ASC" },
-         { key: FIELD_IDS.PROJECT_NUMBER, dir: "ASC" }
+         { key: FIELD_IDS.PROJECT_NUMBER, dir: "ASC" },
       ],
       populate: false,
    });
@@ -202,7 +205,7 @@ async function getActualExpense(modelTeamJEArchive, teams, rcs, year) {
    const teamCond = {
       glue: "or",
       rules: [],
-   }
+   };
    teams.forEach((team) => {
       teamCond.rules.push({
          key: FIELD_IDS.EXPENSE_TEAM,
@@ -250,7 +253,7 @@ module.exports = {
       };
       // get our passed params
       data.team = team ? team : undefined;
-      data.mcc = mcc ? mcc: undefined;
+      data.mcc = mcc ? mcc : undefined;
       data.rc = rc ? rc : undefined;
       data.fyYear = fyYear;
       fyYear = (fyYear || `FY${new Date().getFullYear()}`).toString();
@@ -265,62 +268,71 @@ module.exports = {
       const modelTeamJEArchive = queryTeamJEArchive.model();
       const yearObj = AB.objectByID(OBJECT_IDS.FiscalYear).model();
       const projectBudgetObj = AB.objectByID(OBJECT_IDS.ProjectBudget).model();
-      const teamField = AB.queryByID(QUERY_IDS.myRCs).fieldByID(FIELD_IDS.myRCsTeam);
-      const mccField = AB.queryByID(QUERY_IDS.myRCs).fieldByID(FIELD_IDS.MCC_Name);
-      const rcMccField = AB.objectByID(OBJECT_IDS.ResponsibilityCenter).fieldByID(FIELD_IDS.RC_MCC_Name);
+      const teamField = AB.queryByID(QUERY_IDS.myRCs).fieldByID(
+         FIELD_IDS.myRCsTeam,
+      );
+      const mccField = AB.queryByID(QUERY_IDS.myRCs).fieldByID(
+         FIELD_IDS.MCC_Name,
+      );
+      const rcMccField = AB.objectByID(
+         OBJECT_IDS.ResponsibilityCenter,
+      ).fieldByID(FIELD_IDS.RC_MCC_Name);
 
-      const isCoreUser = (req._user?.SITE_ROLE ?? []).filter((r) => (r.uuid ?? r) == ROLE_IDS.CORE_FINANCE).length > 0;
+      const isCoreUser =
+         (req._user?.SITE_ROLE ?? []).filter(
+            (r) => (r.uuid ?? r) == ROLE_IDS.CORE_FINANCE,
+         ).length > 0;
 
       // Load Data
       const [teamsArray, rcs, yearArray, inactiveRCarray] = await Promise.all([
          // Return teams
-         isCoreUser ?
-         allTeams.findAll(
-            {
-               populate: false,
-               where: {
-                  glue: "and",
-                  rules: [
-                     {
-                        key: "Name",
-                        rule: "is_not_empty",
-                     },
-                  ],
-               },
-            },
-            { username: req._user.username },
-            AB.req
-         ) :
-         myTeams.findAll(
-            {
-               populate: false,
-            },
-            { username: req._user.username },
-            AB.req
-         ),
+         isCoreUser
+            ? allTeams.findAll(
+                 {
+                    populate: false,
+                    where: {
+                       glue: "and",
+                       rules: [
+                          {
+                             key: "Name",
+                             rule: "is_not_empty",
+                          },
+                       ],
+                    },
+                 },
+                 { username: req._user.username },
+                 AB.req,
+              )
+            : myTeams.findAll(
+                 {
+                    populate: false,
+                 },
+                 { username: req._user.username },
+                 AB.req,
+              ),
          // Return myRCs
-         isCoreUser ?
-         allRCs.findAll(
-            {
-               populate: false,
-            },
-            { username: req._user.username },
-            AB.req
-         ) :
-         myRCs.findAll(
-            {
-               populate: false,
-            },
-            { username: req._user.username },
-            AB.req
-         ),
+         isCoreUser
+            ? allRCs.findAll(
+                 {
+                    populate: false,
+                 },
+                 { username: req._user.username },
+                 AB.req,
+              )
+            : myRCs.findAll(
+                 {
+                    populate: false,
+                 },
+                 { username: req._user.username },
+                 AB.req,
+              ),
          //Return year
          yearObj.findAll(
             {
                populate: false,
             },
             { username: req._user.username },
-            AB.req
+            AB.req,
          ),
          allRCs.findAll(
             {
@@ -336,15 +348,21 @@ module.exports = {
                },
             },
             { username: req._user.username },
-            AB.req
-         )
+            AB.req,
+         ),
       ]);
 
       inactiveRCs = (inactiveRCarray ?? []).map((rc) => rc["RC Name"]);
 
       const selectedRcs = rcs
-            .filter((r) => (!rc && !mcc) || (r["BASE_OBJECT.RC Name"] ?? r["RC Name"]) == rc || (r[`${mccField.alias}.${mccField.columnName}`] ?? r[rcMccField.columnName]) == mcc)
-            .map((r) => r["BASE_OBJECT.RC Name"] ?? r["RC Name"]);
+         .filter(
+            (r) =>
+               (!rc && !mcc) ||
+               (r["BASE_OBJECT.RC Name"] ?? r["RC Name"]) == rc ||
+               (r[`${mccField.alias}.${mccField.columnName}`] ??
+                  r[rcMccField.columnName]) == mcc,
+         )
+         .map((r) => r["BASE_OBJECT.RC Name"] ?? r["RC Name"]);
 
       data.teamOptions = (teamsArray ?? [])
          .map((t) => t["BASE_OBJECT.Name"] ?? t["Name"])
@@ -356,12 +374,26 @@ module.exports = {
 
       const selectedTeams = team ? [team] : data.teamOptions;
       const [budgets, expenses] = await Promise.all([
-         getProjectBudgets(projectBudgetObj, selectedTeams, selectedRcs, fyYear),
-         getActualExpense(modelTeamJEArchive, selectedTeams, selectedRcs, fyYear),
+         getProjectBudgets(
+            projectBudgetObj,
+            selectedTeams,
+            selectedRcs,
+            fyYear,
+         ),
+         getActualExpense(
+            modelTeamJEArchive,
+            selectedTeams,
+            selectedRcs,
+            fyYear,
+         ),
       ]);
 
       data.mccOptions = (rcs ?? [])
-         .map((t) => t[`${mccField.alias}.${mccField.columnName}`] ?? t[rcMccField.columnName])
+         .map(
+            (t) =>
+               t[`${mccField.alias}.${mccField.columnName}`] ??
+               t[rcMccField.columnName],
+         )
          // Remove duplicated RC
          .filter(function (mcc, pos, self) {
             return mcc && self.indexOf(mcc) == pos;
@@ -369,7 +401,12 @@ module.exports = {
          .sort(sort);
 
       data.rcOptions = (rcs ?? [])
-         .filter(((t) => !team || (t[`${teamField.alias}.${teamField.columnName}`] ?? t[teamField.columnName]) == team))
+         .filter(
+            (t) =>
+               !team ||
+               (t[`${teamField.alias}.${teamField.columnName}`] ??
+                  t[teamField.columnName]) == team,
+         )
          .map((t) => t["BASE_OBJECT.RC Name"] ?? t["RC Name"])
          // Remove duplicated RC
          .filter(function (rc, pos, self) {
@@ -410,7 +447,9 @@ module.exports = {
             total_actual_expense: 0,
          };
 
-         data.rc_infos[RC][Project_Number] = data.rc_infos[RC][Project_Number] ?? {
+         data.rc_infos[RC][Project_Number] = data.rc_infos[RC][
+            Project_Number
+         ] ?? {
             project_name: Project_Name,
             budget_amount: 0,
             actual_expense: 0,
@@ -423,8 +462,12 @@ module.exports = {
 
       // Pull EXPENSE of each Project
       const fieldRC = queryTeamJEArchive.fieldByID(FIELD_IDS.EXPENSE_RC);
-      const fieldProjectNumber = queryTeamJEArchive.fieldByID(FIELD_IDS.PROJECT_NUMBER);
-      const fieldProjectName = queryTeamJEArchive.fieldByID(FIELD_IDS.PROJECT_NAME);
+      const fieldProjectNumber = queryTeamJEArchive.fieldByID(
+         FIELD_IDS.PROJECT_NUMBER,
+      );
+      const fieldProjectName = queryTeamJEArchive.fieldByID(
+         FIELD_IDS.PROJECT_NAME,
+      );
 
       // {
       //    project_number: [
@@ -436,20 +479,25 @@ module.exports = {
       //       },
       //    ]
       // }
-      data.expense_infos ={};
+      data.expense_infos = {};
 
       expenses.forEach((e) => {
          const RC = e[`${fieldRC.alias}.${fieldRC.columnName}`];
-         const Project_Number = e[`${fieldProjectNumber.alias}.${fieldProjectNumber.columnName}`];
-         const Project_Name = e[`${fieldProjectName.alias}.${fieldProjectName.columnName}`];
-         const ACTUAL_EXPENSE = (e["BASE_OBJECT.Debit"] ?? 0) - (e["BASE_OBJECT.Credit"] ?? 0);
+         const Project_Number =
+            e[`${fieldProjectNumber.alias}.${fieldProjectNumber.columnName}`];
+         const Project_Name =
+            e[`${fieldProjectName.alias}.${fieldProjectName.columnName}`];
+         const ACTUAL_EXPENSE =
+            (e["BASE_OBJECT.Debit"] ?? 0) - (e["BASE_OBJECT.Credit"] ?? 0);
 
          data.rc_infos[RC] = data.rc_infos[RC] ?? {
             total_budget_amount: 0,
             total_actual_expense: 0,
          };
 
-         data.rc_infos[RC][Project_Number] = data.rc_infos[RC][Project_Number] ?? {
+         data.rc_infos[RC][Project_Number] = data.rc_infos[RC][
+            Project_Number
+         ] ?? {
             project_name: Project_Name,
             budget_amount: 0,
             actual_expense: 0,
@@ -459,16 +507,22 @@ module.exports = {
          data.rc_infos[RC].total_actual_expense += ACTUAL_EXPENSE;
          data.totalActualExpense += ACTUAL_EXPENSE;
 
-         data.expense_infos[Project_Number] = data.expense_infos[Project_Number] ?? [];
+         data.expense_infos[Project_Number] =
+            data.expense_infos[Project_Number] ?? [];
          data.expense_infos[Project_Number].push({
-            date: AB.rules.toDateFormat(e["BASE_OBJECT.Date"], { format: "DD/MM/yyyy" }),
+            date: AB.rules.toDateFormat(e["BASE_OBJECT.Date"], {
+               format: "DD/MM/yyyy",
+            }),
             description: e["BASE_OBJECT.Description"],
             credit: e["BASE_OBJECT.Credit"] ?? 0,
             debit: e["BASE_OBJECT.Debit"] ?? 0,
          });
       });
 
-      data.percentExpenseBudget = data.totalBudgetAmount && data.totalActualExpense ? (data.totalActualExpense / data.totalBudgetAmount) * 100 : 0;
+      data.percentExpenseBudget =
+         data.totalBudgetAmount && data.totalActualExpense
+            ? (data.totalActualExpense / data.totalBudgetAmount) * 100
+            : 0;
 
       return data;
    },
@@ -476,7 +530,7 @@ module.exports = {
    template: () => {
       return fs.readFileSync(
          path.join(__dirname, "templates", "budget-vs-expense.ejs"),
-         "utf8"
+         "utf8",
       );
    },
 };

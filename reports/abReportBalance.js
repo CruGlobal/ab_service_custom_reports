@@ -215,7 +215,7 @@ function GetViewDataBalanceReport(languageCode, rc, fyMonth) {
 
 function GetRC(userData, queryId, cond = {}) {
    const queryRC = ABSystemObject.getApplication().queries(
-      (o) => o.id == queryId
+      (o) => o.id == queryId,
    )[0];
 
    if (queryRC == null) return Promise.resolve([]);
@@ -226,13 +226,13 @@ function GetRC(userData, queryId, cond = {}) {
             {
                where: cond,
             },
-            userData
+            userData,
          )
          .then((list) => {
             let rcNames = (list || []).map((rc) => rc["BASE_OBJECT.RC Name"]);
 
             rcNames = rcNames.sort((a, b) =>
-               a.toLowerCase().localeCompare(b.toLowerCase())
+               a.toLowerCase().localeCompare(b.toLowerCase()),
             );
 
             next(rcNames);
@@ -243,7 +243,7 @@ function GetRC(userData, queryId, cond = {}) {
 
 function GetFYMonths() {
    const objFYMonth = ABSystemObject.getApplication().objects(
-      (o) => o.id == OBJECT_IDS.FY_MONTH
+      (o) => o.id == OBJECT_IDS.FY_MONTH,
    )[0];
 
    if (objFYMonth == null) {
@@ -287,7 +287,7 @@ function GetFYMonths() {
 
 function GetBalances(rc, fyPeriod, extraRules = []) {
    const objBalance = ABSystemObject.getApplication().objects(
-      (o) => o.id == OBJECT_IDS.BALANCE
+      (o) => o.id == OBJECT_IDS.BALANCE,
    )[0];
 
    if (objBalance == null || fyPeriod == null) {
@@ -343,7 +343,7 @@ module.exports = {
       let viewData = GetViewDataBalanceSheet(
          languageCode,
          req.query.rc || null,
-         req.query.month
+         req.query.month,
       );
 
       Promise.resolve()
@@ -357,7 +357,7 @@ module.exports = {
                         next();
                      })
                      .catch(err);
-               })
+               }),
          )
          // Pull Balance data
          .then(
@@ -365,7 +365,7 @@ module.exports = {
                new Promise((next, err) => {
                   GetBalances(
                      viewData.rc,
-                     viewData.fyPeriod || viewData.fyOptions[0]
+                     viewData.fyPeriod || viewData.fyOptions[0],
                   )
                      .then((list) => {
                         (list || []).forEach((bl) => {
@@ -396,7 +396,7 @@ module.exports = {
 
                                  if (accNum.indexOf(reportItem.id) == 0) {
                                     reportItem.value += parseFloat(
-                                       bl["Running Balance"]
+                                       bl["Running Balance"],
                                     );
                                  }
                               });
@@ -406,13 +406,13 @@ module.exports = {
                         next();
                      })
                      .catch(err);
-               })
+               }),
          )
          // Render UI
          .then(() => {
             res.view(
                "app_builder/template/balanceSheet", // .ejs
-               viewData
+               viewData,
             );
          });
    },
@@ -424,7 +424,7 @@ module.exports = {
       let viewData = GetViewDataBalanceReport(
          languageCode,
          req.query.rc,
-         req.query.month
+         req.query.month,
       );
 
       let rcHash = {};
@@ -447,7 +447,7 @@ module.exports = {
                         next();
                      })
                      .catch(err);
-               })
+               }),
          )
          // Check QX Role of the user
          .then(
@@ -457,13 +457,13 @@ module.exports = {
                      req.user.data,
                      viewData.rcType == "qx"
                         ? QUERY_IDS.MyQXRC
-                        : QUERY_IDS.MyTeamRC
+                        : QUERY_IDS.MyTeamRC,
                   )
                      .then((list) => {
                         next(list || []);
                      })
                      .catch(err);
-               })
+               }),
          )
          // Pull Balance
          .then(
@@ -485,13 +485,13 @@ module.exports = {
                   GetBalances(
                      null,
                      viewData.fyPeriod || viewData.fyOptions[0],
-                     rules
+                     rules,
                   )
                      .then((list) => {
                         next(list);
                      })
                      .catch(err);
-               })
+               }),
          )
          // Render UI
          .then((balances) => {
@@ -513,12 +513,12 @@ module.exports = {
 
             // Sort
             viewData.items = viewData.items.sort((a, b) =>
-               a.title.toLowerCase().localeCompare(b.title.toLowerCase())
+               a.title.toLowerCase().localeCompare(b.title.toLowerCase()),
             );
 
             res.view(
                "app_builder/template/balanceReport", // .ejs
-               viewData
+               viewData,
             );
          });
    },

@@ -20,8 +20,7 @@ function getPreviousFY(fyPeriod) {
    if (M == 1) {
       Y -= 1;
       M = 12;
-   }
-   else {
+   } else {
       M -= 1;
    }
 
@@ -43,8 +42,7 @@ module.exports = {
       data.fyperend = fyperend;
 
       // If start option is FY M01, then it should read data from end FY
-      if (fyperstart?.indexOf("M01") > -1)
-         fyperstart = null;
+      if (fyperstart?.indexOf("M01") > -1) fyperstart = null;
 
       /**
       /* @const balances
@@ -147,47 +145,45 @@ module.exports = {
 
       const fiscalMonthObj = AB.objectByID(ids.fiscalMonthID).model();
 
-      let fiscalMonthsArray = await fiscalMonthObj
-         .find({
-            where: {
-               glue: "or",
-               rules: [
-                  // Active
-                  {
-                     key: "Status",
-                     rule: "equals",
-                     value: "1592549785939",
-                  },
-                  // Closed
-                  {
-                     key: "Status",
-                     rule: "equals",
-                     value: "1592549786113",
-                  },
-               ],
-            },
-            populate: false,
-            sort: [
+      let fiscalMonthsArray = await fiscalMonthObj.find({
+         where: {
+            glue: "or",
+            rules: [
+               // Active
                {
-                  key: "49d6fabe-46b1-4306-be61-1b27764c3b1a",
-                  dir: "DESC",
+                  key: "Status",
+                  rule: "equals",
+                  value: "1592549785939",
+               },
+               // Closed
+               {
+                  key: "Status",
+                  rule: "equals",
+                  value: "1592549786113",
                },
             ],
-            limit: 15,
-         });
+         },
+         populate: false,
+         sort: [
+            {
+               key: "49d6fabe-46b1-4306-be61-1b27764c3b1a",
+               dir: "DESC",
+            },
+         ],
+         limit: 15,
+      });
 
       data.fyperOptions = fiscalMonthsArray.map((fp) => {
          const fyPeriod = fp["FY Per"];
          return {
             value: fyPeriod,
-            label: `${fyPeriod} - [${utils.convertFYtoDate(fyPeriod)}]`
-         }
+            label: `${fyPeriod} - [${utils.convertFYtoDate(fyPeriod)}]`,
+         };
       });
 
       // Pull previous FY period to calculate
       // https://github.com/CruGlobal/ns_app/issues/452
-      if (fyperstart)
-         fyperstart = getPreviousFY(fyperstart);
+      if (fyperstart) fyperstart = getPreviousFY(fyperstart);
 
       if (data.fyperend) {
          const balanceObj = AB.objectByID(ids.balanceID).model();
@@ -203,22 +199,26 @@ module.exports = {
                      //    rule: "equals",
                      //    value: rc,
                      // },
-                     fyperstart ? {
-                        key: "FY Period",
-                        rule: "equals",
-                        value: fyperstart,
-                     } : null,
-                     data.fyperend ? {
-                        key: "FY Period",
-                        rule: "equals",
-                        value: data.fyperend,
-                     } : null,
+                     fyperstart
+                        ? {
+                             key: "FY Period",
+                             rule: "equals",
+                             value: fyperstart,
+                          }
+                        : null,
+                     data.fyperend
+                        ? {
+                             key: "FY Period",
+                             rule: "equals",
+                             value: data.fyperend,
+                          }
+                        : null,
                   ],
                },
                populate: ["RC Code"],
             },
             { username: AB.id },
-            AB.req
+            AB.req,
          );
       }
 
@@ -512,7 +512,7 @@ module.exports = {
    template: () => {
       return fs.readFileSync(
          path.join(__dirname, "templates", "income-vs-expense.ejs"),
-         "utf8"
+         "utf8",
       );
    },
 };

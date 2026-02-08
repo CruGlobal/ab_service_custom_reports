@@ -21,7 +21,7 @@ module.exports = {
 
       // Promise.all
       await Promise.all([timeOut(1000), timeOut(2000)]).then(
-         (result) => (data.promiseOutput = result)
+         (result) => (data.promiseOutput = result),
          // console.log(result)
       ); // ["Completed in 1000", "Completed in 2000"]
       console.log(AB);
@@ -33,7 +33,7 @@ module.exports = {
    template: () => {
       return fs.readFileSync(
          path.join(__dirname, "templates", "hello-world.ejs"),
-         "utf8"
+         "utf8",
       );
    },
 };
