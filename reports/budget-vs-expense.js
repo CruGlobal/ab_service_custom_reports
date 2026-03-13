@@ -3,9 +3,12 @@
  *
  *
  */
-const fs = require("fs");
-const path = require("path");
-const utils = require("./_utils");
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import utils from "./_utils.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const OBJECT_IDS = {
    FiscalYear: "6c398e8f-ddde-4e26-b142-353de5b16397",
@@ -241,7 +244,7 @@ async function getActualExpense(modelTeamJEArchive, teams, rcs, year) {
    });
 }
 
-module.exports = {
+export default {
    prepareData: async (AB, { team, mcc, rc, fyYear }, req) => {
       const data = {
          current_path: __dirname,

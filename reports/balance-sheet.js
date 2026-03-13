@@ -1,7 +1,9 @@
-const fs = require("fs");
-const { forEach } = require("lodash"); // is this used?
-const path = require("path");
-const utils = require("./_utils");
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import utils from "./_utils.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const OBJECT_IDS = {
    FY_MONTH: "1d63c6ac-011a-4ffd-ae15-97e5e43f2b3f",
@@ -184,9 +186,6 @@ function GetViewDataBalanceSheet(rc, fyMonth) {
 }
 
 function GetFYMonths(AB) {
-   // const objFYMonth = ABSystemObject.getApplication().objects(
-   //    (o) => o.id == OBJECT_IDS.FY_MONTH
-   // )[0];
    const objFYMonth = AB.objectByID(OBJECT_IDS.FY_MONTH).model();
 
    if (objFYMonth == null) {
@@ -196,7 +195,6 @@ function GetFYMonths(AB) {
 
    return new Promise((next, bad) => {
       objFYMonth
-         // .modelAPI()
          .findAll({
             where: {
                glue: "or",
@@ -276,14 +274,14 @@ function GetBalances(AB, rc, fyPeriod, extraRules = []) {
    });
 }
 
-module.exports = {
+export default {
    // GET: /template/balanceSheet
    prepareData: async (AB, { rc, fyper }) => {
       console.log("prepareData in balance-sheet is running");
 
-      var data = GetViewDataBalanceSheet(rc || null, fyper); //;
+      var data = GetViewDataBalanceSheet(rc || null, fyper);
 
-      data.fyOptions = await GetFYMonths(AB); //(AB.objectByID(OBJECT_IDS.FY_MONTH)?.model())
+      data.fyOptions = await GetFYMonths(AB);
 
       let list = await GetBalances(
          AB,

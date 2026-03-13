@@ -1,6 +1,10 @@
-const path = require("path");
-const fs = require("fs");
-module.exports = {
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default {
    prepareData: async (AB) => {
       // Object Ids
       const ids = {
@@ -60,8 +64,6 @@ module.exports = {
       //    }
       // };
 
-      const d = new Date();
-
       const monthNames = [
          "January",
          "February",
@@ -78,6 +80,7 @@ module.exports = {
       ];
 
       let dueDates = {};
+      const d = new Date();
 
       for (let i = 0; i < monthNames.length; i++) {
          let year = d.getFullYear();
@@ -90,7 +93,6 @@ module.exports = {
             dueDates[year] = {};
          }
          dueDates[year][monthNames[monthIndex]] = {};
-         // dueDates[monthNames[monthIndex] + " " + year] = {};
       }
 
       function storeDueDate(dueDates, key, date, label, name) {
@@ -118,7 +120,6 @@ module.exports = {
 
       // loop through person object to get important dates
       for (const person of personsArray) {
-         //console.log("person: ", person);
          let visaDetails;
          if (person["Person__relation"]) {
             visaDetails = await visasObj.find({
@@ -137,15 +138,12 @@ module.exports = {
                limit: 1,
             });
          }
-         //console.log("visaDetails: ", JSON.stringify(visaDetails));
          let birthday,
             visaExpiry,
             visaConsideration,
             visaRecommendation,
             visa6MonthReport,
             workPermitExipry;
-         // get birthdate
-         //console.log("birth date", person["Birth Date"]);
          if (person["Birth Date"] != null) {
             birthday = new Date(person["Birth Date"]);
          }
@@ -174,7 +172,6 @@ module.exports = {
                   "Date of Expiry"
                ],
             );
-            //console.log("visaExpiry: ", visaExpiry);
          }
          if (
             visaDetails &&
@@ -190,7 +187,6 @@ module.exports = {
                   "Date of Consideration"
                ],
             );
-            //console.log("visaConsideration: ", visaConsideration);
          }
          if (
             visaDetails &&
@@ -206,7 +202,6 @@ module.exports = {
                   "Date of Recommendation"
                ],
             );
-            //console.log("visaRecommendation: ", visaRecommendation);
          }
          if (
             visaDetails &&
@@ -222,10 +217,8 @@ module.exports = {
                   "6 Month Report"
                ],
             );
-            //console.log("visa6MonthReport: ", visa6MonthReport);
          }
          for (const [key] of Object.entries(dueDates)) {
-            //console.log("birthday");
             if (birthday) {
                storeDueDate(
                   dueDates,
@@ -235,7 +228,6 @@ module.exports = {
                   person["Full Name"],
                );
             }
-            //console.log("visaExpiry");
             if (visaExpiry != null) {
                if (person["Person Type"] == "Dependent") {
                   storeDueDate(
@@ -255,7 +247,6 @@ module.exports = {
                   );
                }
             }
-            //console.log("visaConsideration");
             if (visaConsideration != null) {
                storeDueDate(
                   dueDates,
@@ -265,7 +256,6 @@ module.exports = {
                   person["Full Name"],
                );
             }
-            //console.log("visaRecommendation");
             if (visaRecommendation != null) {
                storeDueDate(
                   dueDates,
@@ -275,7 +265,6 @@ module.exports = {
                   person["Full Name"],
                );
             }
-            //console.log("workPermitExipry");
             if (workPermitExipry != null) {
                storeDueDate(
                   dueDates,
@@ -285,7 +274,6 @@ module.exports = {
                   person["Full Name"],
                );
             }
-            //console.log("visa6MonthReport");
             if (visa6MonthReport != null) {
                storeDueDate(
                   dueDates,
@@ -297,12 +285,6 @@ module.exports = {
             }
          }
       }
-      //console.log("dueDates: ", JSON.stringify(dueDates));
-
-      //console.log(
-      //    "visa info: ",
-      //    JSON.stringify(personsArray[0]["Person__relation"]),
-      // );
 
       data.dueDates = dueDates;
 

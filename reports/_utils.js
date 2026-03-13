@@ -1,4 +1,4 @@
-module.exports = {
+export default {
    valueFormat: (number) => {
       if (number == null) return;
       else if (!number.toLocaleString) number = parseFloat(number);

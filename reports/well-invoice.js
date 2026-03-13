@@ -1,6 +1,10 @@
-const path = require("path");
-const fs = require("fs");
-module.exports = {
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default {
    prepareData: async (AB, { payeeId }) => {
       const ids = {
          billingAccount: "7ecd7257-1023-4917-bc3f-88061293cf30",

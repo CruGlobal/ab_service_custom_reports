@@ -3,11 +3,14 @@
  *
  *
  */
-const fs = require("fs");
-const path = require("path");
-const utils = require("./_utils");
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import utils from "./_utils.js";
 
-module.exports = {
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default {
    // GET: /report/local-income-expense
    // get the local and expense income and calculate the sums
    prepareData: async (AB, { Teams, RCs, start, end }, req) => {

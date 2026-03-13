@@ -1,7 +1,9 @@
-const fs = require("fs");
-const { cond } = require("lodash");
-const path = require("path");
-const utils = require("./_utils");
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import utils from "./_utils.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const OBJECT_IDS = {
    MinistryTeam: "138ff828-4579-412b-8b5b-98542d7aa152",
@@ -12,7 +14,7 @@ const OBJECT_IDS = {
    ProjectBudget: "839ac470-8f77-420c-9a30-aeaf0a9f509c",
 };
 
-function GetViewDataBalanceReport(rcVal, monthVal) {
+function GetViewDataBalanceReport(_rcVal, _monthVal) {
    return {
       title: {
          en: "RC Balances",
@@ -113,8 +115,8 @@ function GetMonthList() {
    return array;
 }
 
-module.exports = {
-   prepareData: async (AB, { rcVal, teamVal, yearVal, monthVal }, req) => {
+export default {
+   prepareData: async (AB, { rcVal, teamVal, yearVal, monthVal }, _req) => {
       //const viewData = {};
       const rcHash = {};
       let viewData = GetViewDataBalanceReport(rcVal, monthVal);

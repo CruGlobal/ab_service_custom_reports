@@ -2,14 +2,14 @@
  * well-receipt
  * our Request handler.
  */
-const path = require("path");
-const ejs = require("ejs");
-const ABBootstrap = require("../AppBuilder/ABBootstrap");
-// {ABBootstrap}
-// responsible for initializing and returning an {ABFactory} that will work
-// with the current tenant for the incoming request.
+import path from "path";
+import { fileURLToPath } from "url";
+import ejs from "ejs";
+import ABBootstrap from "../AppBuilder/ABBootstrap.js";
 
-module.exports = {
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default {
    /**
     * Key: the cote message key we respond to.
     */

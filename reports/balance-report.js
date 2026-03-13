@@ -1,6 +1,9 @@
-const path = require("path");
-const fs = require("fs");
-const utils = require("./_utils");
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+import utils from "./_utils.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const OBJECT_IDS = {
    MINISTRY_TEAM: "138ff828-4579-412b-8b5b-98542d7aa152",
@@ -197,7 +200,7 @@ async function GetBalances(AB, rc, fyPeriod, extraRules = []) {
    return objBalance.findAll(cond);
 }
 
-module.exports = {
+export default {
    // GET: /template/balanceReport
    // balanceReport: (req, res) => {
    prepareData: async (AB, { team, qx, mcc, rc, fyper }, req) => {
