@@ -8,6 +8,9 @@ import eslintConfigPrettier from "eslint-config-prettier/flat";
 import eslintPluginPrettier from "eslint-plugin-prettier";
 
 export default [
+   // Ignore AppBuilder (not converted to ESM) and reports/scripts (browser + EJS)
+   { ignores: ["AppBuilder/**", "reports/scripts/**"] },
+
    js.configs.recommended,
 
    // Main project: Node + ES2022, Prettier, custom rules
@@ -30,6 +33,10 @@ export default [
             },
          ],
          "no-console": "off", // allow console.log() in our services
+         "no-unused-vars": [
+            "error",
+            { varsIgnorePattern: "^_", argsIgnorePattern: "^_" },
+         ],
       },
    },
 

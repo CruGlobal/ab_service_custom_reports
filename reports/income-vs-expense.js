@@ -4,9 +4,12 @@
  *
  */
 
-const path = require("path");
-const fs = require("fs");
-const utils = require("./_utils");
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+import utils from "./_utils.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function getPreviousFY(fyPeriod) {
    let Y = fyPeriod?.split(" ")[0]?.replace("FY", "");
@@ -27,7 +30,7 @@ function getPreviousFY(fyPeriod) {
    return `FY${Y} M${M < 10 ? `0${M}` : M}`;
 }
 
-module.exports = {
+export default {
    // GET: /report/local-income-expense
    // get the local and expense income and calculate the sums
    prepareData: async (AB, { fyperstart, fyperend }) => {
@@ -132,15 +135,6 @@ module.exports = {
      */
       function accountInCategory(account, category) {
          return (account ?? "").toString().startsWith(category);
-         // const accountDigits = account.toString().split("");
-         // const categoryDigits = category.toString().split("");
-         // let match = true;
-         // categoryDigits.forEach((digit, i) => {
-         //    if (digit !== accountDigits[i]) {
-         //       match = false;
-         //    }
-         // });
-         // return match;
       }
 
       const fiscalMonthObj = AB.objectByID(ids.fiscalMonthID).model();
@@ -225,7 +219,6 @@ module.exports = {
       // Calculate Net Income Values
       let incomeReceivedTotals = calculateGroupSums(4, 5);
       let incomeTransferTotals = calculateGroupSums(6);
-      // let expenseTotals = calculateGroupSums(6, 7, 8, 9);
       let expenseTotals = calculateGroupSums(7, 8);
       let internalTransferTotals = calculateGroupSums(9);
 

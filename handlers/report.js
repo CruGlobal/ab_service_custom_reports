@@ -3,35 +3,37 @@
  * generic report handler
  */
 
-const ABBootstrap = require("../AppBuilder/ABBootstrap");
-// {ABBootstrap}
-// responsible for initializing and returning an {ABFactory} that will work
-// with the current tenant for the incoming request.
-const ejs = require("ejs");
+import ABBootstrap from "../AppBuilder/ABBootstrap.js";
+import ejs from "ejs";
+import helloWorld from "../reports/hello-world.js";
+import wellInvoiceReport from "../reports/well-invoice.js";
+import wellReceipt from "../reports/well-receipt.js";
+import wellSession from "../reports/well-session.js";
+import localIncomeExpense from "../reports/local-income-expense.js";
+import incomeVsExpense from "../reports/income-vs-expense.js";
+import balanceSheet from "../reports/balance-sheet.js";
+import balanceReport from "../reports/balance-report.js";
+import teamMonthly from "../reports/team-monthly.js";
+import budgetVsExpense from "../reports/budget-vs-expense.js";
+import extendReportMonth from "../reports/extend-report-month.js";
+import fcfDueDates from "../reports/fcf-due-dates.js";
 
 const reports = {
-   // reportKey: require(/pathToReport)  -> Should export:
-   //                prepareData(AB, req.param("data")) => obj - data for the ejs tempalte
-   //                template() => string - ejs template string
-   "hello-world": require("../reports/hello-world.js"),
-   "well-invoice": require("../reports/well-invoice.js"),
-   "well-receipt": require("../reports/well-receipt.js"),
-   "well-session": require("../reports/well-session.js"),
-   "local-income-expense": require("../reports/local-income-expense.js"),
-   "income-vs-expense": require("../reports/income-vs-expense.js"),
-   "balance-sheet": require("../reports/balance-sheet.js"),
-   "balance-report": require("../reports/balance-report.js"),
-   "team-monthly": require("../reports/team-monthly.js"),
-   "budget-vs-expense": require("../reports/budget-vs-expense.js"),
-   "extend-report-month": require("../reports/extend-report-month.js"),
-   "fcf-due-dates": require("../reports/fcf-due-dates.js"),
+   "hello-world": helloWorld,
+   "well-invoice": wellInvoiceReport,
+   "well-receipt": wellReceipt,
+   "well-session": wellSession,
+   "local-income-expense": localIncomeExpense,
+   "income-vs-expense": incomeVsExpense,
+   "balance-sheet": balanceSheet,
+   "balance-report": balanceReport,
+   "team-monthly": teamMonthly,
+   "budget-vs-expense": budgetVsExpense,
+   "extend-report-month": extendReportMonth,
+   "fcf-due-dates": fcfDueDates,
 };
-// "balanceReport",
-// "balanceSheet",
-// "incomeVsExpense",
-// "localIncomeExpense",
 
-module.exports = {
+export default {
    /**
     * Key: the cote message key we respond to.
     */

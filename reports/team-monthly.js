@@ -3,9 +3,12 @@
  *
  *
  */
-const fs = require("fs");
-const path = require("path");
-const utils = require("./_utils");
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import utils from "./_utils.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const QUERY_IDS = {
    MY_RCs: "241a977c-7748-420d-9dcb-eff53e66a43f",
@@ -313,7 +316,7 @@ function calculateRcDetail(AB, jeArchives, fyper, rcs = {}) {
    });
 }
 
-module.exports = {
+export default {
    // GET: /report/team-monthly
    // Teams, RCs, start, end
    prepareData: async (AB, { Teams, RCs, fyper }, req) => {

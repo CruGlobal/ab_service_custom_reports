@@ -1,4 +1,5 @@
-const utils = require("./_utils");
+/* global ABSystemObject */
+import utils from "./_utils.js";
 
 const OBJECT_IDS = {
    FY_MONTH: "1d63c6ac-011a-4ffd-ae15-97e5e43f2b3f",
@@ -51,57 +52,33 @@ function GetViewDataBalanceSheet(languageCode, rc, fyMonth) {
       fyPeriod: fyMonth,
       fyOptions: [],
       items: [
-         {
-            title: "ASSETS",
-            type: ITEM_TYPES.Header,
-         },
+         { title: "ASSETS", type: ITEM_TYPES.Header },
          {
             id: 11,
             title: "11000 - Banks and Cash",
             type: ITEM_TYPES.TotalTertiary,
             value: 0,
          },
-         {
-            title: "Other Assets",
-            type: ITEM_TYPES.Header,
-         },
-         {
-            id: 12,
-            title: "1200 - Receivables",
-            value: 0,
-         },
-         {
-            id: 14,
-            title: "1400 - Products for Sale",
-            value: 0,
-         },
+         { title: "Other Assets", type: ITEM_TYPES.Header },
+         { id: 12, title: "1200 - Receivables", value: 0 },
+         { id: 14, title: "1400 - Products for Sale", value: 0 },
          {
             id: 15,
             title: "1500 - Advances and other current assets",
             value: 0,
          },
-         {
-            id: 16,
-            title: "1600 - Investments",
-            value: 0,
-         },
+         { id: 16, title: "1600 - Investments", value: 0 },
          {
             id: "Sum12",
             title: "Total Other Asset",
             type: ITEM_TYPES.TotalTertiary,
-            value: (items) => {
-               let val12 = items.find((x) => x.id == 12).value || 0;
-               let val14 = items.find((x) => x.id == 14).value || 0;
-               let val15 = items.find((x) => x.id == 15).value || 0;
-               let val16 = items.find((x) => x.id == 16).value || 0;
-
-               return val12 + val14 + val15 + val16;
-            },
+            value: (items) =>
+               (items.find((x) => x.id == 12)?.value || 0) +
+               (items.find((x) => x.id == 14)?.value || 0) +
+               (items.find((x) => x.id == 15)?.value || 0) +
+               (items.find((x) => x.id == 16)?.value || 0),
          },
-         {
-            title: "Fixed Assets",
-            type: ITEM_TYPES.Header,
-         },
+         { title: "Fixed Assets", type: ITEM_TYPES.Header },
          {
             id: 17,
             title: "1700 - Fixed assets and depreciation",
@@ -111,88 +88,46 @@ function GetViewDataBalanceSheet(languageCode, rc, fyMonth) {
          {
             title: "Total Assets",
             type: ITEM_TYPES.Total,
-            value: (items) => {
-               let val11 = items.find((x) => x.id == 11).value || 0;
-               let valSum12 =
-                  items.find((x) => x.id == "Sum12").value(items) || 0;
-               let val17 = items.find((x) => x.id == 17).value || 0;
-
-               return val11 + valSum12 + val17;
-            },
+            value: (items) =>
+               (items.find((x) => x.id == 11)?.value || 0) +
+               (typeof items.find((x) => x.id == "Sum12")?.value === "function"
+                  ? items.find((x) => x.id == "Sum12").value(items)
+                  : 0) +
+               (items.find((x) => x.id == 17)?.value || 0),
          },
-         {
-            title: "LIABILITIES",
-            type: ITEM_TYPES.Header,
-         },
-         {
-            id: 21,
-            title: "2100 - Payroll items payable",
-            value: 0,
-         },
-         {
-            id: 22,
-            title: "2200 - Payables",
-            value: 0,
-         },
-         {
-            id: 26,
-            title: "2600 - Other Current Liabilities",
-            value: 0,
-         },
-         {
-            id: 27,
-            title: "2700 - Long-term liabilities",
-            value: 0,
-         },
+         { title: "LIABILITIES", type: ITEM_TYPES.Header },
+         { id: 21, title: "2100 - Payroll items payable", value: 0 },
+         { id: 22, title: "2200 - Payables", value: 0 },
+         { id: 26, title: "2600 - Other Current Liabilities", value: 0 },
+         { id: 27, title: "2700 - Long-term liabilities", value: 0 },
          {
             id: "SumLiabilities",
             title: "Total Current Liabilities",
             type: ITEM_TYPES.TotalSecondary,
-            value: (items) => {
-               let val21 = items.find((x) => x.id == 21).value || 0;
-               let val22 = items.find((x) => x.id == 22).value || 0;
-               let val26 = items.find((x) => x.id == 26).value || 0;
-               let val27 = items.find((x) => x.id == 27).value || 0;
-
-               return val21 + val22 + val26 + val27;
-            },
+            value: (items) =>
+               (items.find((x) => x.id == 21)?.value || 0) +
+               (items.find((x) => x.id == 22)?.value || 0) +
+               (items.find((x) => x.id == 26)?.value || 0) +
+               (items.find((x) => x.id == 27)?.value || 0),
          },
-         {
-            title: "FUND BALANCE",
-            type: ITEM_TYPES.Header,
-         },
-         {
-            id: 35,
-            title: "3500 - Beginning fund balance",
-            value: 0,
-         },
-         {
-            id: 39,
-            title: "3900 - Net income (loss) year-to-date",
-            value: 0,
-         },
+         { title: "FUND BALANCE", type: ITEM_TYPES.Header },
+         { id: 35, title: "3500 - Beginning fund balance", value: 0 },
+         { id: 39, title: "3900 - Net income (loss) year-to-date", value: 0 },
          {
             id: "SumFundBalance",
             title: "Total Fund Balance",
             type: ITEM_TYPES.TotalSecondary,
-            value: (items) => {
-               let val35 = items.find((x) => x.id == 35).value || 0;
-               let val39 = items.find((x) => x.id == 39).value || 0;
-
-               return val35 + val39;
-            },
+            value: (items) =>
+               (items.find((x) => x.id == 35)?.value || 0) +
+               (items.find((x) => x.id == 39)?.value || 0),
          },
          {
             title: "Total Liabilities and Fund Balance",
             type: ITEM_TYPES.Total,
-            value: (items) => {
-               let valSumLiabilities =
-                  items.find((x) => x.id == "SumLiabilities").value(items) || 0;
-               let valSumFundBalance =
-                  items.find((x) => x.id == "SumFundBalance").value(items) || 0;
-
-               return valSumLiabilities + valSumFundBalance;
-            },
+            value: (items) =>
+               (items.find((x) => x.id == "SumLiabilities")?.value(items) ||
+                  0) +
+               (items.find((x) => x.id == "SumFundBalance")?.value(items) || 0),
          },
       ],
    };
@@ -335,7 +270,7 @@ function GetBalances(rc, fyPeriod, extraRules = []) {
    });
 }
 
-module.exports = {
+export default {
    // GET: /template/balanceSheet
    balanceSheet: (req, res) => {
       let languageCode = GetLanguageCode(req);
@@ -347,7 +282,6 @@ module.exports = {
       );
 
       Promise.resolve()
-         // Pull FY month list
          .then(
             () =>
                new Promise((next, err) => {
@@ -359,7 +293,6 @@ module.exports = {
                      .catch(err);
                }),
          )
-         // Pull Balance data
          .then(
             () =>
                new Promise((next, err) => {
@@ -408,12 +341,8 @@ module.exports = {
                      .catch(err);
                }),
          )
-         // Render UI
          .then(() => {
-            res.view(
-               "app_builder/template/balanceSheet", // .ejs
-               viewData,
-            );
+            res.view("app_builder/template/balanceSheet", viewData);
          });
    },
 
@@ -428,16 +357,8 @@ module.exports = {
       );
 
       let rcHash = {};
-      /**
-       * {
-       *    rcName1: sum of balances,
-       *    rcName2: sum of balances,
-       *    ...
-       * }
-       */
 
       Promise.resolve()
-         // Pull FY month list
          .then(
             () =>
                new Promise((next, err) => {
@@ -449,7 +370,6 @@ module.exports = {
                      .catch(err);
                }),
          )
-         // Check QX Role of the user
          .then(
             () =>
                new Promise((next, err) => {
@@ -465,7 +385,6 @@ module.exports = {
                      .catch(err);
                }),
          )
-         // Pull Balance
          .then(
             (RCs) =>
                new Promise((next, err) => {
@@ -493,9 +412,7 @@ module.exports = {
                      .catch(err);
                }),
          )
-         // Render UI
          .then((balances) => {
-            // Calculate Sum
             (balances || []).forEach((gl) => {
                rcHash[gl["RC Code"]] =
                   rcHash[gl["RC Code"]] == null ? 0 : rcHash[gl["RC Code"]];
@@ -503,7 +420,6 @@ module.exports = {
                rcHash[gl["RC Code"]] += gl["Running Balance"] || 0;
             });
 
-            // Convert to View Data
             Object.keys(rcHash).forEach((rcCode) => {
                viewData.items.push({
                   title: rcCode,
@@ -511,15 +427,11 @@ module.exports = {
                });
             });
 
-            // Sort
             viewData.items = viewData.items.sort((a, b) =>
                a.title.toLowerCase().localeCompare(b.title.toLowerCase()),
             );
 
-            res.view(
-               "app_builder/template/balanceReport", // .ejs
-               viewData,
-            );
+            res.view("app_builder/template/balanceReport", viewData);
          });
    },
 };
