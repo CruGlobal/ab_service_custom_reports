@@ -1,7 +1,11 @@
-const path = require("path");
-const fs = require("fs");
-const utils = require("./_utils");
-module.exports = {
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+import utils from "./_utils.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default {
    prepareData: async (AB, { sessionID }, req) => {
       // Object Definition Ids
       const ids = {
@@ -80,7 +84,7 @@ module.exports = {
    template: () => {
       return fs.readFileSync(
          path.join(__dirname, "templates", "well-session.ejs"),
-         "utf8"
+         "utf8",
       );
    },
 };

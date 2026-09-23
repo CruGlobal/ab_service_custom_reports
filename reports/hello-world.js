@@ -1,6 +1,10 @@
-const path = require("path");
-const fs = require("fs");
-module.exports = {
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default {
    prepareData: async (AB, { input }) => {
       input = input || "no input.";
       const data = {
@@ -9,7 +13,7 @@ module.exports = {
 
       // A simple promise that resolves after a given time
       const timeOut = (t) => {
-         return new Promise((resolve, reject) => {
+         return new Promise((resolve) => {
             setTimeout(() => {
                resolve(`Completed in ${t}`);
             }, t);
@@ -21,7 +25,7 @@ module.exports = {
 
       // Promise.all
       await Promise.all([timeOut(1000), timeOut(2000)]).then(
-         (result) => (data.promiseOutput = result)
+         (result) => (data.promiseOutput = result),
          // console.log(result)
       ); // ["Completed in 1000", "Completed in 2000"]
       console.log(AB);
@@ -33,7 +37,7 @@ module.exports = {
    template: () => {
       return fs.readFileSync(
          path.join(__dirname, "templates", "hello-world.ejs"),
-         "utf8"
+         "utf8",
       );
    },
 };

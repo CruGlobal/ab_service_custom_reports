@@ -1,6 +1,9 @@
-const path = require("path");
-const fs = require("fs");
-const utils = require("./_utils");
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+import utils from "./_utils.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const OBJECT_IDS = {
    MINISTRY_TEAM: "138ff828-4579-412b-8b5b-98542d7aa152",
@@ -54,54 +57,60 @@ async function GetTeams(AB, req, isCoreUser) {
    const allTeams = AB.objectByID(OBJECT_IDS.MINISTRY_TEAM).model();
    const myTeams = AB.queryByID(QUERY_IDS.MyMinistryTeams).model();
 
-   return (isCoreUser ?
-      await allTeams.findAll(
-         {
-            populate: false,
-         },
-         { username: req._user.username },
-         AB.req
-      ) :
-      await myTeams.findAll(
-         {
-            populate: false,
-         },
-         { username: req._user.username },
-         AB.req
+   return (
+      (
+         isCoreUser
+            ? await allTeams.findAll(
+                 {
+                    populate: false,
+                 },
+                 { username: req._user.username },
+                 AB.req,
+              )
+            : await myTeams.findAll(
+                 {
+                    populate: false,
+                 },
+                 { username: req._user.username },
+                 AB.req,
+              )
       )
-   )
-      .map((t) => t["BASE_OBJECT.Name"] ?? t["Name"])
-      // Remove duplicated Team
-      .filter(function (t, pos, self) {
-         return t && self.indexOf(t) == pos;
-      });
+         .map((t) => t["BASE_OBJECT.Name"] ?? t["Name"])
+         // Remove duplicated Team
+         .filter(function (t, pos, self) {
+            return t && self.indexOf(t) == pos;
+         })
+   );
 }
 
 async function GetQXs(AB, req, isCoreUser) {
    const allQXs = AB.objectByID(OBJECT_IDS.QX).model();
    const myQXs = AB.queryByID(QUERY_IDS.MyQX).model();
 
-   return (isCoreUser ?
-      await allQXs.findAll(
-         {
-            populate: false,
-         },
-         { username: req._user.username },
-         AB.req
-      ) :
-      await myQXs.findAll(
-         {
-            populate: false,
-         },
-         { username: req._user.username },
-         AB.req
+   return (
+      (
+         isCoreUser
+            ? await allQXs.findAll(
+                 {
+                    populate: false,
+                 },
+                 { username: req._user.username },
+                 AB.req,
+              )
+            : await myQXs.findAll(
+                 {
+                    populate: false,
+                 },
+                 { username: req._user.username },
+                 AB.req,
+              )
       )
-   )
-      .map((t) => t["BASE_OBJECT.QX Code"] ?? t["QX Code"])
-      // Remove duplicated Team
-      .filter(function (t, pos, self) {
-         return t && self.indexOf(t) == pos;
-      });
+         .map((t) => t["BASE_OBJECT.QX Code"] ?? t["QX Code"])
+         // Remove duplicated Team
+         .filter(function (t, pos, self) {
+            return t && self.indexOf(t) == pos;
+         })
+   );
 }
 
 async function GetMCC(AB, req) {
@@ -112,17 +121,14 @@ async function GetMCC(AB, req) {
          populate: false,
       },
       { username: req._user.username },
-      AB.req
+      AB.req,
    );
 }
 
 async function GetRC(AB, req, queryId, cond) {
    const qModel = AB.queryByID(queryId).model();
 
-   return await qModel.findAll(cond,
-      { username: req._user.username },
-      AB.req
-   );
+   return await qModel.findAll(cond, { username: req._user.username }, AB.req);
 }
 
 async function GetFYMonths(AB, req) {
@@ -153,9 +159,9 @@ async function GetFYMonths(AB, req) {
    };
 
    const fyModel = AB.objectByID(OBJECT_IDS.FY_MONTH).model();
-   return (await fyModel.findAll(cond, { username: req._user.username }, AB.req)).map(
-      (item) => item["FY Per"]
-   );
+   return (
+      await fyModel.findAll(cond, { username: req._user.username }, AB.req)
+   ).map((item) => item["FY Per"]);
 }
 
 async function GetBalances(AB, rc, fyPeriod, extraRules = []) {
@@ -194,11 +200,14 @@ async function GetBalances(AB, rc, fyPeriod, extraRules = []) {
    return objBalance.findAll(cond);
 }
 
-module.exports = {
+export default {
    // GET: /template/balanceReport
    // balanceReport: (req, res) => {
    prepareData: async (AB, { team, qx, mcc, rc, fyper }, req) => {
-      const isCoreUser = (req._user?.SITE_ROLE ?? []).filter((r) => (r.uuid ?? r) == ROLE_IDS.CORE_FINANCE).length > 0;
+      const isCoreUser =
+         (req._user?.SITE_ROLE ?? []).filter(
+            (r) => (r.uuid ?? r) == ROLE_IDS.CORE_FINANCE,
+         ).length > 0;
       const viewData = GetViewDataBalanceReport(team, qx, mcc, rc, fyper);
 
       /**
@@ -218,17 +227,20 @@ module.exports = {
       ]);
 
       const query = AB.queryByID(
-         viewData.rcType == "qx" ? QUERY_IDS.MyQXRC : QUERY_IDS.MyTeamRC
+         viewData.rcType == "qx" ? QUERY_IDS.MyQXRC : QUERY_IDS.MyTeamRC,
       );
 
       const mccField = query.fieldByID(FIELDS_IDS.mccFieldId);
-      const mccName = mccOpts.filter((m) => m.id == mcc || m["MCC Num"] == mcc)[0]?.[mccField.columnName];
+      const mccName = mccOpts.filter(
+         (m) => m.id == mcc || m["MCC Num"] == mcc,
+      )[0]?.[mccField.columnName];
 
       // Return teams
-      viewData.teamOptions = (isCoreUser || viewData.rcType == "team") ? teamOpts : [];
+      viewData.teamOptions =
+         isCoreUser || viewData.rcType == "team" ? teamOpts : [];
 
       // Return QXs
-      viewData.qxOptions = (isCoreUser || viewData.rcType == "qx") ? qxOpts : [];
+      viewData.qxOptions = isCoreUser || viewData.rcType == "qx" ? qxOpts : [];
 
       // Pull FY month list
       viewData.fyOptions = fyOpts;
@@ -237,64 +249,98 @@ module.exports = {
       let RCs = [];
       if (isCoreUser) {
          const objRCs = AB.objectByID(OBJECT_IDS.RC).model();
-         RCs = RCs.concat(await objRCs.findAll({
-            populate: false,
-            where: {
-               glue: "and",
-               rules: mccName ? [
-                  {
-                     key: FIELDS_IDS.RC_MCC,
-                     rule: "equals",
-                     value: mccName,
-                  },
-               ] : [],
-            },
-         }));
-      }
-      else if (viewData.rcType == "qx") {
+         RCs = RCs.concat(
+            await objRCs.findAll({
+               populate: false,
+               where: {
+                  glue: "and",
+                  rules: mccName
+                     ? [
+                          {
+                             key: FIELDS_IDS.RC_MCC,
+                             rule: "equals",
+                             value: mccName,
+                          },
+                       ]
+                     : [],
+               },
+            }),
+         );
+      } else if (viewData.rcType == "qx") {
          RCs = RCs.concat(await GetRC(AB, req, QUERY_IDS.MyQXRC));
-      }
-      else if (viewData.rcType == "team") {
+      } else if (viewData.rcType == "team") {
          RCs = RCs.concat(await GetRC(AB, req, QUERY_IDS.MyTeamRC));
       }
 
       // MCC option list
       viewData.mccOptions = mccOpts
-         .filter((m) => RCs.filter((rc) => m[mccField.columnName] == rc[`${mccField.alias}.${mccField.columnName}`] || m["MCC Num"] == rc["MCCcode"]).length)
+         .filter(
+            (m) =>
+               RCs.filter(
+                  (rc) =>
+                     m[mccField.columnName] ==
+                        rc[`${mccField.alias}.${mccField.columnName}`] ||
+                     m["MCC Num"] == rc["MCCcode"],
+               ).length,
+         )
          .map((m) => {
             return {
                id: m["MCC Num"],
-               name: m[mccField.columnName]
-            }
-         })
-         // .filter((m, ft, tl) => m && tl.indexOf(m) == ft);
+               name: m[mccField.columnName],
+            };
+         });
+      // .filter((m, ft, tl) => m && tl.indexOf(m) == ft);
 
       if (team) {
-         const rcTeamField = AB.objectByID(OBJECT_IDS.RC).fieldByID(FIELDS_IDS.RC_Team);
-         const qxTeamField = AB.queryByID(QUERY_IDS.MyQXRC).fieldByID(FIELDS_IDS.MyQXRC_Team);
-         const myTeamField = AB.queryByID(QUERY_IDS.MyTeamRC).fieldByID(FIELDS_IDS.MyTeamRC_Team);
+         const rcTeamField = AB.objectByID(OBJECT_IDS.RC).fieldByID(
+            FIELDS_IDS.RC_Team,
+         );
+         const qxTeamField = AB.queryByID(QUERY_IDS.MyQXRC).fieldByID(
+            FIELDS_IDS.MyQXRC_Team,
+         );
+         const myTeamField = AB.queryByID(QUERY_IDS.MyTeamRC).fieldByID(
+            FIELDS_IDS.MyTeamRC_Team,
+         );
          RCs = RCs.filter(
-            ((rc) => !team || rc[rcTeamField?.columnName] == team || rc[`${qxTeamField?.alias}.${qxTeamField?.columnName}`] == team || rc[`${myTeamField?.alias}.${myTeamField?.columnName}`] == team)
+            (rc) =>
+               !team ||
+               rc[rcTeamField?.columnName] == team ||
+               rc[`${qxTeamField?.alias}.${qxTeamField?.columnName}`] == team ||
+               rc[`${myTeamField?.alias}.${myTeamField?.columnName}`] == team,
          );
       }
 
       if (qx) {
-         const rcQxField = AB.objectByID(OBJECT_IDS.RC).fieldByID(FIELDS_IDS.RC_QX);
-         const myQxRcField = AB.queryByID(QUERY_IDS.MyQXRC).fieldByID(FIELDS_IDS.RC_QX);
+         const rcQxField = AB.objectByID(OBJECT_IDS.RC).fieldByID(
+            FIELDS_IDS.RC_QX,
+         );
+         const myQxRcField = AB.queryByID(QUERY_IDS.MyQXRC).fieldByID(
+            FIELDS_IDS.RC_QX,
+         );
          RCs = RCs.filter(
-            ((rc) => rc[rcQxField?.columnName] == qx || rc[`${myQxRcField?.alias}.${myQxRcField?.columnName}`] == qx)
+            (rc) =>
+               rc[rcQxField?.columnName] == qx ||
+               rc[`${myQxRcField?.alias}.${myQxRcField?.columnName}`] == qx,
          );
       }
 
       if (mcc) {
          RCs = RCs.filter((rc) => {
-            const mccVal = rc[`${mccField.alias}.${mccField.columnName}`] ?? rc["MCCcode"] ?? rc[mccField.columnName];
-            return mccVal == mcc || mccVal == mccName
+            const mccVal =
+               rc[`${mccField.alias}.${mccField.columnName}`] ??
+               rc["MCCcode"] ??
+               rc[mccField.columnName];
+            return mccVal == mcc || mccVal == mccName;
          });
       }
 
-      const rcNames = RCs.map((rc) => rc["BASE_OBJECT.RC Name"] ?? rc["RC Name"]).sort((a, b) =>
-         (a ?? "").toString().toLowerCase().localeCompare((b ?? "").toString().toLowerCase())
+      const rcNames = RCs.map(
+         (rc) => rc["BASE_OBJECT.RC Name"] ?? rc["RC Name"],
+      ).sort((a, b) =>
+         (a ?? "")
+            .toString()
+            .toLowerCase()
+            .localeCompare((b ?? "").toString().toLowerCase()),
       );
 
       // Pull Balance
@@ -315,7 +361,7 @@ module.exports = {
          AB,
          null,
          viewData.fyPeriod || viewData.fyOptions[0],
-         rules
+         rules,
       );
 
       // Render UI
@@ -341,7 +387,7 @@ module.exports = {
 
       // Sort
       viewData.items = viewData.items.sort((a, b) =>
-         a.title.toLowerCase().localeCompare(b.title.toLowerCase())
+         a.title.toLowerCase().localeCompare(b.title.toLowerCase()),
       );
 
       return viewData;
@@ -349,7 +395,7 @@ module.exports = {
    template: () => {
       return fs.readFileSync(
          path.join(__dirname, "templates", "balance-report.ejs"),
-         "utf8"
+         "utf8",
       );
    },
 };

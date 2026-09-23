@@ -4,9 +4,12 @@
  *
  */
 
-const path = require("path");
-const fs = require("fs");
-const utils = require("./_utils");
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+import utils from "./_utils.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function getPreviousFY(fyPeriod) {
    let Y = fyPeriod?.split(" ")[0]?.replace("FY", "");
@@ -20,15 +23,14 @@ function getPreviousFY(fyPeriod) {
    if (M == 1) {
       Y -= 1;
       M = 12;
-   }
-   else {
+   } else {
       M -= 1;
    }
 
    return `FY${Y} M${M < 10 ? `0${M}` : M}`;
 }
 
-module.exports = {
+export default {
    // GET: /report/local-income-expense
    // get the local and expense income and calculate the sums
    prepareData: async (AB, { fyperstart, fyperend }) => {
@@ -43,8 +45,7 @@ module.exports = {
       data.fyperend = fyperend;
 
       // If start option is FY M01, then it should read data from end FY
-      if (fyperstart?.indexOf("M01") > -1)
-         fyperstart = null;
+      if (fyperstart?.indexOf("M01") > -1) fyperstart = null;
 
       /**
       /* @const balances
@@ -134,60 +135,49 @@ module.exports = {
      */
       function accountInCategory(account, category) {
          return (account ?? "").toString().startsWith(category);
-         // const accountDigits = account.toString().split("");
-         // const categoryDigits = category.toString().split("");
-         // let match = true;
-         // categoryDigits.forEach((digit, i) => {
-         //    if (digit !== accountDigits[i]) {
-         //       match = false;
-         //    }
-         // });
-         // return match;
       }
 
       const fiscalMonthObj = AB.objectByID(ids.fiscalMonthID).model();
 
-      let fiscalMonthsArray = await fiscalMonthObj
-         .find({
-            where: {
-               glue: "or",
-               rules: [
-                  // Active
-                  {
-                     key: "Status",
-                     rule: "equals",
-                     value: "1592549785939",
-                  },
-                  // Closed
-                  {
-                     key: "Status",
-                     rule: "equals",
-                     value: "1592549786113",
-                  },
-               ],
-            },
-            populate: false,
-            sort: [
+      let fiscalMonthsArray = await fiscalMonthObj.find({
+         where: {
+            glue: "or",
+            rules: [
+               // Active
                {
-                  key: "49d6fabe-46b1-4306-be61-1b27764c3b1a",
-                  dir: "DESC",
+                  key: "Status",
+                  rule: "equals",
+                  value: "1592549785939",
+               },
+               // Closed
+               {
+                  key: "Status",
+                  rule: "equals",
+                  value: "1592549786113",
                },
             ],
-            limit: 15,
-         });
+         },
+         populate: false,
+         sort: [
+            {
+               key: "49d6fabe-46b1-4306-be61-1b27764c3b1a",
+               dir: "DESC",
+            },
+         ],
+         limit: 15,
+      });
 
       data.fyperOptions = fiscalMonthsArray.map((fp) => {
          const fyPeriod = fp["FY Per"];
          return {
             value: fyPeriod,
-            label: `${fyPeriod} - [${utils.convertFYtoDate(fyPeriod)}]`
-         }
+            label: `${fyPeriod} - [${utils.convertFYtoDate(fyPeriod)}]`,
+         };
       });
 
       // Pull previous FY period to calculate
       // https://github.com/CruGlobal/ns_app/issues/452
-      if (fyperstart)
-         fyperstart = getPreviousFY(fyperstart);
+      if (fyperstart) fyperstart = getPreviousFY(fyperstart);
 
       if (data.fyperend) {
          const balanceObj = AB.objectByID(ids.balanceID).model();
@@ -203,29 +193,32 @@ module.exports = {
                      //    rule: "equals",
                      //    value: rc,
                      // },
-                     fyperstart ? {
-                        key: "FY Period",
-                        rule: "equals",
-                        value: fyperstart,
-                     } : null,
-                     data.fyperend ? {
-                        key: "FY Period",
-                        rule: "equals",
-                        value: data.fyperend,
-                     } : null,
+                     fyperstart
+                        ? {
+                             key: "FY Period",
+                             rule: "equals",
+                             value: fyperstart,
+                          }
+                        : null,
+                     data.fyperend
+                        ? {
+                             key: "FY Period",
+                             rule: "equals",
+                             value: data.fyperend,
+                          }
+                        : null,
                   ],
                },
                populate: ["RC Code"],
             },
             { username: AB.id },
-            AB.req
+            AB.req,
          );
       }
 
       // Calculate Net Income Values
       let incomeReceivedTotals = calculateGroupSums(4, 5);
       let incomeTransferTotals = calculateGroupSums(6);
-      // let expenseTotals = calculateGroupSums(6, 7, 8, 9);
       let expenseTotals = calculateGroupSums(7, 8);
       let internalTransferTotals = calculateGroupSums(9);
 
@@ -512,7 +505,7 @@ module.exports = {
    template: () => {
       return fs.readFileSync(
          path.join(__dirname, "templates", "income-vs-expense.ejs"),
-         "utf8"
+         "utf8",
       );
    },
 };

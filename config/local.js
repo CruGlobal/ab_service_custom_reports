@@ -1,10 +1,11 @@
 /*
  * Custom_Reports
  */
-const AB = require("@digiserve/ab-utils");
+import AB from "@digiserve/ab-utils";
+
 const env = AB.defaults.env;
 
-module.exports = {
+export default {
    custom_reports: {
       /*************************************************************************/
       /* enable: {bool} is this service active?                                */
