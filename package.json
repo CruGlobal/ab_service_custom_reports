@@ -1,7 +1,7 @@
 {
    "name": "custom_reports",
    "type": "module",
-   "version": "1.1.30+p11422.c22001",
+   "version": "1.1.32+p11500",
    "description": "A cool micro service.",
    "main": "app.js",
    "author": "Coding Monkey",
@@ -15,7 +15,7 @@
       "moment": "^2.29.1",
       "objection": "^3.1.5",
       "pdfmake": "^0.3.14",
-      "semver": "^7.8.5",
+      "semver": "^7.8.6",
       "xml-js": "^1.6.11"
    },
    "scripts": {
